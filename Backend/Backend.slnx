@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="FelineFeeder.Api\FelineFeeder.Api.csproj" />
+  <Project Path="FelineFeeder.Core\FelineFeeder.Core.csproj" />
+  <Project Path="FelineFeeder.Infrastructure/FelineFeeder.Infrastructure.csproj" />
+</Solution>
