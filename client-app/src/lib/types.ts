@@ -7,10 +7,11 @@ export type FeedingTime = {
 };
 
 
-export type LogMessage = {
-  id: string;
-  time: string;
-  message : string;
-  level : "info" | "warning" | "error";
+export type LogEntry = {
+  id: number;
+  timeStamp: string;
+  level : string;
+  renderedMessage: string;
+  properties : string;
 };
 

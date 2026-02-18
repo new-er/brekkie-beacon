@@ -59,3 +59,13 @@ export async function deleteFeedingTime(id: string): Promise<void> {
   if (!res.ok) throw new Error("Failed to delete feeding time");
 }
 
+
+export async function fetchLogEntries(): Promise<LogEntry[]> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/logs`,
+    { cache: "no-store" }
+  );
+  
+  if (!res.ok) throw new Error("Failed to fetch log messages");
+  return res.json();
+}
