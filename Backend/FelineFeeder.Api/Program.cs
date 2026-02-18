@@ -10,6 +10,17 @@ InitializePinFactory.Mock();
 //InitializePinFactory.Production();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
@@ -25,6 +36,7 @@ builder.Services.AddScoped<FeederService>();
 builder.Services.AddScoped<LEDService>();
 
 var app = builder.Build();
+app.UseCors("FrontendPolicy");
 
 using var scope = app.Services.CreateScope();
 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -65,12 +77,12 @@ app.MapPost("/feeding_times", async (FeedingTime feedingTime, AppDbContext db) =
     await db.SaveChangesAsync();
     return Results.Created($"/feeding_times/{feedingTime.Id}", feedingTime);
 }).WithName("CreateFeedingTime");
-app.MapGet("/feeding_times/{id}", async (int id, AppDbContext db) =>
+app.MapGet("/feeding_times/{id}", async (Guid id, AppDbContext db) =>
 {
     var item = await db.FeedingTimes.FindAsync(id);
     return item is not null ? Results.Ok(item) : Results.NotFound();
 }).WithName("GetFeedingTimeById");
-app.MapPut("/feeding_times/{id}", async (int id, FeedingTime updated, AppDbContext db) =>
+app.MapPut("/feeding_times/{id}", async (Guid id, FeedingTime updated, AppDbContext db) =>
 {
     var existing = await db.FeedingTimes.FindAsync(id);
     if (existing is null) return Results.NotFound();
@@ -80,7 +92,7 @@ app.MapPut("/feeding_times/{id}", async (int id, FeedingTime updated, AppDbConte
     await db.SaveChangesAsync();
     return Results.Ok(existing);
 }).WithName("UpdateFeedingTime");
-app.MapDelete("/feeding_times/{id}", async (int id, AppDbContext db) =>
+app.MapDelete("/feeding_times/{id}", async (Guid id, AppDbContext db) =>
 {
     var item = await db.FeedingTimes.FindAsync(id);
     if (item is null) return Results.NotFound();
