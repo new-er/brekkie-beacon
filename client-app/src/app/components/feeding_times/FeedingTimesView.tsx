@@ -18,38 +18,41 @@ export default function FeedingTimesView({
 
   const handleAdd = () => {
     if (!newTimeName.trim()) return;
-    const newTime = {
-      name: newTimeName.trim(),
-      time: "12:00",
-
-    }
-    onAdd(newTime);
+    onAdd(newTimeName.trim());
     setNewTimeName("");
   };
 
   return (
-    <div className="w-full">
-      <div className="flex gap-2 mb-6">
+    <div className="w-full bg-gray-900 p-3 rounded-md shadow-md space-y-4">
+     <div className="text-center font-semibold mb-2 border-b border-gray-700 pb-1">
+        Scheduled Feedings
+      </div>
+
+      <div className="flex gap-2 items-center">
         <input
           type="text"
           value={newTimeName}
           onChange={(e) => setNewTimeName(e.target.value)}
-          placeholder="New feeding time..."
-          className="flex-grow px-3 py-2 border rounded"
+          placeholder="Add new time..."
+          className="flex-grow px-3 py-2 bg-gray-900 text-gray-100 border border-gray-700 rounded focus:outline-none focus:border-blue-500"
         />
+
         <button
           onClick={handleAdd}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded"
         >
           Add
         </button>
       </div>
 
-      <FeedingTimeList
-        items={items}
-        onUpdate={onUpdate}
-        onDelete={onDelete}
-      />
+      {/* Feedings list */}
+      <div className="space-y-3">
+        <FeedingTimeList
+          items={items}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+        />
+      </div>
     </div>
   );
 }
