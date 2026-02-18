@@ -1,4 +1,4 @@
-import type { FeedingTime } from "./types";
+import type { FeedingTime, LogEntry } from "./types";
 
 // Feeding times
 export async function fetchFeedingTimes(): Promise<FeedingTime[]> {

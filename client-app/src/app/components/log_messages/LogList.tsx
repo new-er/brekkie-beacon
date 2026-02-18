@@ -1,6 +1,6 @@
 "use client";
-
-import { LogMessage, default as LogItem } from "./LogItem";
+import type { LogEntry } from "@/lib/types";
+import { default as LogItem } from "./LogItem";
 
 type Props = {
   items: LogEntry[];

@@ -4,6 +4,7 @@ import FeedingTimesView from "./components/feeding_times/FeedingTimesView";
 import LogList from "./components/log_messages/LogList";
 import { fetchFeedingTimes, createFeedingTime, updateFeedingTime, deleteFeedingTime, fetchLogEntries, feedNow, flashLights } from "@/lib/api";
 import { useEffect, useState } from "react";
+import type { FeedingTime, LogEntry } from "@/lib/types";
 
 export default function Home() {
   var [feedingTimes, setFeedingTimes] = useState<FeedingTime[]>([]);
