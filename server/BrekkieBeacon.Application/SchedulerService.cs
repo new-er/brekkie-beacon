@@ -19,7 +19,7 @@ public class SchedulerService(ILogger<SchedulerService> _logger)
             await ScheduleJobsAsync(scheduler, ft);
         }
         
-        _logger.LogInformationVisibleInWebUI("Initialized scheduler");
+        _logger.LogInformationVisibleForClient("Initialized scheduler");
     }
     
     public async Task OnAddedAsync(FeedingTime ft) =>

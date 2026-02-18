@@ -29,7 +29,7 @@ public class FeederService
         _stepEngine.Direction = motorInstructions.NegateDirection;
         isRunning = true;
         
-        _logger.LogInformationVisibleInWebUI("Feeder started");
+        _logger.LogInformationVisibleForClient("Feeder started");
         try
         {
             await _stepEngine
@@ -45,7 +45,7 @@ public class FeederService
         {
             _stepEngine.Enable = false;
             isRunning = false;
-            _logger.LogInformationVisibleInWebUI("Feeder stopped");
+            _logger.LogInformationVisibleForClient("Feeder stopped");
         }
     }
 }

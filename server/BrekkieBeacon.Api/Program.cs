@@ -4,6 +4,7 @@ using BrekkieBeacon.Application.LEDs;
 using BrekkieBeacon.Core;
 using BrekkieBeacon.Infrastructure;
 using Dotcore.GPIO.Pins;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 using Serilog;
@@ -22,9 +23,11 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
+var fullLogDbPath = Path.Combine(Directory.GetCurrentDirectory(), "logs.db");
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
-    .WriteTo.SQLite("Data Source=logs.db", tableName:"Logs")
+    .WriteTo.SQLite(sqliteDbPath: fullLogDbPath, tableName:"Logs", retentionPeriod: TimeSpan.FromDays(7))
     .CreateLogger();
 builder.Host.UseSerilog();
 
@@ -35,9 +38,8 @@ builder.Services.AddQuartz();
 
 builder.Services.AddDbContext<AppDbContext>(opts =>
     opts.UseSqlite("Data Source=app.db"));
-/*builder.Services.AddDbContext<LogsDbContext>(opts =>
-    opts.UseSqlite(builder.Configuration.GetConnectionString("Logs")
-                   ?? "Data Source=logs.db"));*/
+builder.Services.AddDbContext<LogsDbContext>(opts =>
+    opts.UseSqlite($"Data Source={fullLogDbPath}"));
 
 builder.Services.AddScoped<IFeedingTimeRepository, FeedingTimeRepository>();
 builder.Services.AddScoped<SchedulerService>();
@@ -100,6 +102,8 @@ app.MapPut("/feeding_times/{id}", async (Guid id, FeedingTime updated, AppDbCont
     existing.Id = updated.Id;
     existing.Name = updated.Name;
     existing.Time = updated.Time;
+    existing.MotorInstructions = updated.MotorInstructions;
+    existing.LEDInstructions = updated.LEDInstructions;
     await db.SaveChangesAsync();
     return Results.Ok(existing);
 }).WithName("UpdateFeedingTime");
@@ -132,13 +136,18 @@ app.MapGet("/flash_leds_now", (LEDService ledService) =>
     return Results.Ok(new { Message = "started light flash" });
 }).WithName("FlashLEDsNow");
 
-app.MapGet("/logs", async (LogsDbContext db) =>
+app.MapGet("/logs", async ([FromServices] LogsDbContext db) =>
     {
         var logs = await db.Logs
-            .OrderByDescending(l => l.TimeStamp)
-            .Take(100)
+            .FromSqlRaw(@"
+        SELECT *
+        FROM Logs
+        WHERE json_extract(Properties, '$.VisibleForClient') = 1
+        ORDER BY TimeStamp DESC
+        LIMIT 100
+    ")
             .ToListAsync();
-
+        
         return Results.Ok(logs);
     })
     .WithName("GetLogs");
