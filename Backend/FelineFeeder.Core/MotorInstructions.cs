@@ -13,4 +13,5 @@ public record MotorInstructions
     
     public uint Steps { get; set; }
     public TimeSpan WaitBetweenSteps { get; set; }
+    public bool NegateDirection { get; set; }
 }

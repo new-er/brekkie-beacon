@@ -1,21 +1,28 @@
+using Dotcore.GPIO.Pins;
 using FelineFeeder.Application;
+using FelineFeeder.Application.LEDs;
 using FelineFeeder.Core;
 using FelineFeeder.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Quartz;
+
+InitializePinFactory.Mock();
+//InitializePinFactory.Production();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddQuartz(q => { });
 
 builder.Services.AddDbContext<AppDbContext>(opts =>
     opts.UseSqlite("Data Source=app.db"));
 
 builder.Services.AddScoped<IFeedingTimeRepository, FeedingTimeRepository>();
 builder.Services.AddScoped<SchedulerService>();
+builder.Services.AddScoped<FeederService>();
+builder.Services.AddScoped<LEDService>();
 
 var app = builder.Build();
 
@@ -87,5 +94,20 @@ app.MapGet("/feeding_times", async (AppDbContext db) =>
     var times = await db.FeedingTimes.ToListAsync();
     return times;
 }).WithName("GetFeedingTimes");
+
+app.MapGet("/feed_now", async (FeederService feederService) =>
+{
+    _ = feederService.Feed(MotorInstructions.Default, CancellationToken.None);
+    return Results.Ok(new { Message = "started feed now" });
+}).WithName("FeedNow");
+
+app.MapGet("/flash_leds_now", (LEDService ledService) =>
+{
+    var cancellation = new CancellationTokenSource();
+    cancellation.CancelAfter(TimeSpan.FromSeconds(2));
+    _ = ledService.StartTestFlash(cancellation.Token);
+    return Results.Ok(new { Message = "started light flash" });
+}).WithName("FlashLEDsNow");
+
 
 app.Run();
