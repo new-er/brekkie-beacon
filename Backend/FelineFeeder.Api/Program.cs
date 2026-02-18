@@ -137,7 +137,7 @@ app.MapGet("/flash_leds_now", (LEDService ledService) =>
 app.MapGet("/logs", async (LogsDbContext db) =>
     {
         var logs = await db.Logs
-            .Where(l => l.Properties.Contains("VisibleInWebUI"))
+            .Where(l => l.Properties.Contains("VisibleForClient"))
             .OrderByDescending(l => l.TimeStamp)
             .Take(100)
             .ToListAsync();

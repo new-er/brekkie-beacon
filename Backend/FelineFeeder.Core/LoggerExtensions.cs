@@ -8,7 +8,7 @@ public static class LoggerExtensions
     {
         using var scope = logger.BeginScope(new Dictionary<string, object>()
         {
-            ["VisibleInWebUI"] = true 
+            ["VisibleForClient"] = true 
         });
         logger.LogInformation(message);
     }
