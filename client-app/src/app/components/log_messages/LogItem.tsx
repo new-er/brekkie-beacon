@@ -1,29 +1,44 @@
 "use client";
+import { FaInfoCircle, FaExclamationTriangle } from "react-icons/fa";
 
 type Props = {
   message: LogEntry;
 };
 
 export default function FeedingTimeItem({ message }: Props) {
-  const levelColor = {
-    information: "text-indigo-300",
-    warning: "text-yellow-400",
-    error: "text-red-400",
+  const levelStyles = {
+    information: {
+      dot: "bg-indigo-400",
+      icon: <FaInfoCircle className="text-indigo-300" size={16} />,
+      text: "text-indigo-200",
+    },
+    warning: {
+      dot: "bg-yellow-500",
+      icon: <FaExclamationTriangle className="text-yellow-400" size={16} />,
+      text: "text-yellow-200",
+    },
+    error: {
+      dot: "bg-red-500",
+      icon: <FaExclamationTriangle className="text-red-400" size={16} />,
+      text: "text-red-300",
+    },
   } as const;
 
-  return (
-    <li className="flex items-start gap-x-6 p-4 rounded-lg bg-gray-800 text-gray-100 shadow-md hover:shadow-lg transition-shadow duration-150">
-      <div className={`w-2 h-2 mt-2 rounded-full ${levelColor[message.level]}`}></div>
+  const style = levelStyles[message.level] || levelStyles.information;
 
-      <div className="flex flex-col space-y-1">
-        <div className="flex items-center gap-x-4">
-          <span className="text-xs text-gray-400">Time:</span>
-          <span className="font-semibold text-sm text-gray-100">
-            {message.timeStamp}
-          </span>
+  return (
+  <li className="flex items-start gap-x-4 p-4 rounded-lg bg-gray-800 text-gray-100 shadow-md hover:shadow-lg transition-shadow duration-150">
+      <div className="flex items-center gap-x-3 flex-1">
+        <div className="mt-0.5">{style.icon}</div>
+        <div className="flex flex-col space-y-1 flex-1">
+          <div className="flex items-center gap-x-3 text-xs text-gray-400">
+            <span>Time:</span>
+            <span className="font-medium text-gray-200">{message.timeStamp}</span>
+          </div>
+          <p className={`text-sm ${style.text}`}>
+            {message.renderedMessage}
+          </p>
         </div>
-        <p className="text-sm text-gray-200">{message.renderedMessage}</p>
       </div>
-    </li>
-  );}
+    </li>  );}
     
