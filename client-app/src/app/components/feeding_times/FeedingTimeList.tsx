@@ -1,6 +1,7 @@
 "use client";
 
-import { FeedingTime, default as FeedingTimeItem } from "./FeedingTimeItem";
+import type { FeedingTime } from "@/lib/types";
+import { default as FeedingTimeItem } from "./FeedingTimeItem";
 
 type Props = {
   items: FeedingTime[];

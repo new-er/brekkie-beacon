@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import type { FeedingTime } from "@/lib/types";
 import FeedingTimeList from "./FeedingTimeList";
 
 type FeedingTimesViewProps = {

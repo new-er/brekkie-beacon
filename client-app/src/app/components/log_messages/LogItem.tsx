@@ -1,11 +1,12 @@
 "use client";
+import type { LogEntry } from "@/lib/types";
 import { FaInfoCircle, FaExclamationTriangle } from "react-icons/fa";
 
 type Props = {
   message: LogEntry;
 };
 
-export default function FeedingTimeItem({ message }: Props) {
+export default function LogItem({ message }: Props) {
   const levelStyles = {
     information: {
       dot: "bg-indigo-400",
@@ -24,7 +25,11 @@ export default function FeedingTimeItem({ message }: Props) {
     },
   } as const;
 
-  const style = levelStyles[message.level] || levelStyles.information;
+  function getStyle(level: string) {
+    return levelStyles[level]; 
+  }
+
+  const style = getStyle(message.level) || levelStyles.information;
 
   return (
   <li className="flex items-start gap-x-4 p-4 rounded-lg bg-gray-800 text-gray-100 shadow-md hover:shadow-lg transition-shadow duration-150">
