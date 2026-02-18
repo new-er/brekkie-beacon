@@ -102,6 +102,8 @@ app.MapPut("/feeding_times/{id}", async (Guid id, FeedingTime updated, AppDbCont
     existing.Id = updated.Id;
     existing.Name = updated.Name;
     existing.Time = updated.Time;
+    existing.LEDInstructions = updated.LEDInstructions;
+    existing.MotorInstructions = updated.MotorInstructions;
     await db.SaveChangesAsync();
     return Results.Ok(existing);
 }).WithName("UpdateFeedingTime");
