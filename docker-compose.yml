@@ -1,12 +1,12 @@
 services:
   backend:
-    image: ghcr.io/new-er/brekkie-beacon-server:latest
+    image: ghcr.io/new-er/brekkie-beacon/brekkie-beacon-server:latest
     restart: always
     ports:
       - "5098:8080"
 
   frontend:
-    image: ghcr.io/new-er/brekkie-beacon-client:latest
+    image: ghcr.io/new-er/brekkie-beacon/brekkie-beacon-client:latest
     restart: always
     ports:
       - "3000:3000"

@@ -11,7 +11,7 @@ jobs:
       contents: read
       packages: write
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
@@ -26,18 +26,27 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build & push backend image
-      run: |
-        docker buildx build \
-          --platform linux/arm64 \
-          -t ghcr.io/${{ github.repository }}/brekkie-beacon-server:latest \
-          server \
-          --push
-
-    - name: Build & push frontend image
-      run: |
-        docker buildx build \
-          --platform linux/arm64 \
-          -t ghcr.io/${{ github.repository }}/brekkie-beacon-client:latest \
-          client-app \
-          --push
+    - name: Build & push backend 
+      uses: docker/build-push-action@v6
+      with:
+        context: server
+        file:    server/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: |
+          ghcr.io/${{ github.repository }}/brekkie-beacon-server:latest
+          ghcr.io/$$   {{ github.repository }}/brekkie-beacon-server:   $${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    - name: Build & push frontend
+      uses: docker/build-push-action@v6
+      with:
+        context: client-app
+        file:    client-app/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: |
+          ghcr.io/${{ github.repository }}/brekkie-beacon-client:latest
+          ghcr.io/${{ github.repository }}/brekkie-beacon-client:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
