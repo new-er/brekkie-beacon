@@ -64,19 +64,21 @@ export default function FeedingTimeItem({
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-x-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-x-3">
               <label className="text-gray-400 text-sm min-w-[100px]">Time</label>
               <input
-                className="px-2 py-1 rounded bg-gray-700 text-white flex-1"
+                aria-label="Time"
+                type="time"
                 value={editTime}
                 onChange={(e) => setEditTime(e.target.value)}
+                className="flex-1 px-2 py-1 rounded bg-gray-700 text-white border border-gray-600 focus:border-indigo-500 focus:outline-none"
               />
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-x-3">
               <label className="text-gray-400 text-sm min-w-[100px]">Engine Steps</label>
               <input
-                className="px-2 py-1 rounded bg-gray-700 text-white w-24"
+                className="flex-1 px-2 py-1 rounded bg-gray-700 text-white w-24"
                 type="number"
                 value={editSteps}
                 onChange={(e) => setEditSteps(Number(e.target.value))}
@@ -86,7 +88,7 @@ export default function FeedingTimeItem({
             <div className="flex flex-col sm:flex-row sm:items-center gap-x-3">
               <label className="text-gray-400 text-sm min-w-[100px]">Wait between steps</label>
               <input
-                className="px-2 py-1 rounded bg-gray-700 text-white w-24"
+                className="flex-1 px-2 py-1 rounded bg-gray-700 text-white w-24"
                 type="text"
                 value={editWait}
                 onChange={(e) => setEditWait(e.target.value)}
@@ -101,7 +103,7 @@ export default function FeedingTimeItem({
                   type="checkbox"
                   checked={editNegate}
                   onChange={(e) => setEditNegate(e.target.checked)}
-                  className="accent-indigo-500"
+                  className="flex-1 accent-indigo-500"
                 />
                 <span className="text-gray-300">{editNegate ? "Yes" : "No"}</span>
               </label>
@@ -110,7 +112,7 @@ export default function FeedingTimeItem({
             <div className="flex flex-col sm:flex-row sm:items-center gap-x-3">
               <label className="text-gray-400 text-sm min-w-[100px]">LED Brightness</label>
               <input
-                className="px-2 py-1 rounded bg-gray-700 text-white w-24"
+                className="flex-1 px-2 py-1 rounded bg-gray-700 text-white w-24"
                 type="number"
                 value={editBrightness}
                 onChange={(e) => setEditBrightness(Number(e.target.value))}
