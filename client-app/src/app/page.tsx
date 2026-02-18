@@ -1,6 +1,6 @@
 import Image from "next/image";
 import FeedingTimeList from "./components/feeding_times/FeedingTimeList";
-import LogList from "./components/logs/LogList";
+import LogList from "./components/log_messages/LogList";
 
 export default function Home() {
   const mockFeedingTimes: FeedingTime[] = [
