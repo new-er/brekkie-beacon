@@ -30,7 +30,7 @@ jobs:
       run: |
         docker buildx build \
           --platform linux/arm64 \
-          -t ghcr.io/${{ github.repository }}/backend:latest \
+          -t ghcr.io/${{ github.repository }}/brekkie-beacon-server:latest \
           server \
           --push
 
@@ -38,6 +38,6 @@ jobs:
       run: |
         docker buildx build \
           --platform linux/arm64 \
-          -t ghcr.io/${{ github.repository }}/frontend:latest \
+          -t ghcr.io/${{ github.repository }}/brekkie-beacon-client:latest \
           client-app \
           --push
