@@ -25,7 +25,10 @@ var fullLogDbPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "log
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .WriteTo.Console()
-    .WriteTo.SQLite(sqliteDbPath: fullLogDbPath, tableName: "Logs", batchSize: 1)
+    .WriteTo.SQLite(
+        sqliteDbPath: fullLogDbPath,
+        tableName: "Logs",
+        retentionPeriod: TimeSpan.FromDays(3))
     .CreateLogger();
 builder.Host.UseSerilog();
 
