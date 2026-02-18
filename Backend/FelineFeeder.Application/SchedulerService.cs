@@ -1,11 +1,12 @@
 using FelineFeeder.Application.LEDs;
 using FelineFeeder.Core;
+using Microsoft.Extensions.Logging;
 using Quartz;
 using Quartz.Impl;
 
 namespace FelineFeeder.Application;
 
-public class SchedulerService
+public class SchedulerService(ILogger<SchedulerService> _logger)
 {
     private readonly ISchedulerFactory _schedulerFactory = new StdSchedulerFactory();
 
@@ -16,6 +17,8 @@ public class SchedulerService
         {
             await ScheduleJobsAsync(scheduler, ft);
         }
+        
+        _logger.LogInformationVisibleInWebUI("Initialized scheduler");
     }
     
     public async Task OnAddedAsync(FeedingTime ft) =>

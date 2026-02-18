@@ -2,6 +2,7 @@ using Dotcore.GPIO.Engines.Step;
 using Dotcore.GPIO.Engines.Step.TB6600;
 using Dotcore.GPIO.Pins;
 using FelineFeeder.Core;
+using Microsoft.Extensions.Logging;
 
 namespace FelineFeeder.Application;
 
@@ -9,9 +10,11 @@ public class FeederService
 {
     private readonly IStepEngine _stepEngine;
     private bool isRunning;
+    private readonly ILogger<FeederService> _logger;
 
-    public FeederService()
+    public FeederService(ILogger<FeederService> logger)
     {
+        _logger = logger;
         var gpio = IPinFactory.Instance;
         _stepEngine = new StepEngine(
                 gpio.Output(26), //37
@@ -19,13 +22,14 @@ public class FeederService
                 gpio.Output(13)) //33
             { Enable = false };
     }
-
-
+    
     public async Task Feed(MotorInstructions motorInstructions, CancellationToken cancellation)
     {
         if (isRunning) return;
         _stepEngine.Direction = motorInstructions.NegateDirection;
         isRunning = true;
+        
+        _logger.LogInformationVisibleInWebUI("Feeder started");
         try
         {
             await _stepEngine
@@ -41,6 +45,7 @@ public class FeederService
         {
             _stepEngine.Enable = false;
             isRunning = false;
+            _logger.LogInformationVisibleInWebUI("Feeder stopped");
         }
     }
 }

@@ -5,6 +5,7 @@ using FelineFeeder.Core;
 using FelineFeeder.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
+using Serilog;
 
 InitializePinFactory.Mock();
 //InitializePinFactory.Production();
@@ -20,15 +21,25 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
-
+var fullLogDbPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "logs.sqlite"));
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.Console()
+    .WriteTo.SQLite(sqliteDbPath: fullLogDbPath, tableName: "Logs", batchSize: 1)
+    .CreateLogger();
+builder.Host.UseSerilog();
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddQuartz(q => { });
+builder.Services.AddQuartz();
 
 builder.Services.AddDbContext<AppDbContext>(opts =>
     opts.UseSqlite("Data Source=app.db"));
+
+builder.Services.AddDbContext<LogsDbContext>(opts =>
+    opts.UseSqlite(builder.Configuration.GetConnectionString("Logs")
+                   ?? $"Data Source={fullLogDbPath}"));
 
 builder.Services.AddScoped<IFeedingTimeRepository, FeedingTimeRepository>();
 builder.Services.AddScoped<SchedulerService>();
@@ -37,6 +48,8 @@ builder.Services.AddScoped<LEDService>();
 
 var app = builder.Build();
 app.UseCors("FrontendPolicy");
+app.UseSerilogRequestLogging();
+
 
 using var scope = app.Services.CreateScope();
 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -121,5 +134,16 @@ app.MapGet("/flash_leds_now", (LEDService ledService) =>
     return Results.Ok(new { Message = "started light flash" });
 }).WithName("FlashLEDsNow");
 
+app.MapGet("/logs", async (LogsDbContext db) =>
+    {
+        var logs = await db.Logs
+            .Where(l => l.Properties.Contains("VisibleInWebUI"))
+            .OrderByDescending(l => l.TimeStamp)
+            .Take(100)
+            .ToListAsync();
+
+        return Results.Ok(logs);
+    })
+    .WithName("GetLogs");
 
 app.Run();
