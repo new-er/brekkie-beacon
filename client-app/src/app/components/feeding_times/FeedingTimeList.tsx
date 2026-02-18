@@ -10,7 +10,7 @@ type Props = {
 
 export default function FeedingTimeList({ items = [], onUpdate, onDelete }: Props) {
   return (
-    <ul className="feeding-time-list">
+    <ul className="feeding-time-list space-y-4">
       {items.map(item => (
         <FeedingTimeItem key={item.id} feedingTime={item} onUpdate={onUpdate} onDelete={onDelete} />
       ))}
