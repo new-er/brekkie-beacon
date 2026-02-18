@@ -1,16 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-WORKDIR /src
+WORKDIR /App
 
-COPY ["BrekkieBeacon.Api/BrekkieBeacon.Api.csproj", "BrekkieBeacon.Api/"]
-COPY ["BrekkieBeacon.Core/BrekkieBeacon.Core.csproj", "BrekkieBeacon.Core/"]
-COPY ["BrekkieBeacon.Infrastructure/BrekkieBeacon.Infrastructure.csproj", "BrekkieBeacon.Infrastructure/"]
-COPY ["BrekkieBeacon.Application/BrekkieBeacon.Application.csproj", "BrekkieBeacon.Application/"]
-COPY ["BrekkieBeacon.slnx", "."]
+COPY . ./
+RUN dotnet restore
+RUN dotnet publish -o out
 
-RUN dotnet restore "BrekkieBeacon.slnx"
-
-COPY . .
-
-RUN dotnet publish "BrekkieBeacon.Api/BrekkieBeacon.Api.csproj" -c Release -o /app/publish
-
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /App
+COPY --from=build /App/out .
 ENTRYPOINT ["dotnet", "BrekkieBeacon.Api.dll"]
