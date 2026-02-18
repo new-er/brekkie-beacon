@@ -1,3 +1,4 @@
+using FelineFeeder.Application;
 using FelineFeeder.Core;
 using FelineFeeder.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +14,32 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(opts =>
     opts.UseSqlite("Data Source=app.db"));
 
+builder.Services.AddScoped<IFeedingTimeRepository, FeedingTimeRepository>();
+builder.Services.AddScoped<SchedulerService>();
+
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
+
+using var scope = app.Services.CreateScope();
+var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+db.Database.Migrate();
+
+var repo = scope.ServiceProvider.GetRequiredService<IFeedingTimeRepository>();
+var scheduler = scope.ServiceProvider.GetRequiredService<SchedulerService>();
+var allFeedingTimes = await repo.GetAllAsync();
+await scheduler.InitializeAsync(allFeedingTimes);
+
+repo.Added += scheduler.OnAddedAsync;
+repo.Updated += scheduler.OnUpdatedAsync;
+repo.Removed += scheduler.OnRemovedAsync;
+
+if (!await db.FeedingTimes.AnyAsync())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    db.FeedingTimes.AddRange(
+        new FeedingTime { Id = Guid.NewGuid(), Name = "Morning", Time = new TimeOnly(8, 0) },
+        new FeedingTime { Id = Guid.NewGuid(), Name = "Evening", Time = new TimeOnly(18, 0) }
+    );
+
+    await db.SaveChangesAsync();
 }
 
 // Configure the HTTP request pipeline.
