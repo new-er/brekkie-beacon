@@ -126,7 +126,7 @@ app.MapGet("/feed_now", async (FeederService feederService) =>
     return Results.Ok(new { Message = "started feed now" });
 }).WithName("FeedNow");
 
-app.MapGet("/flash_leds_now", (LEDService ledService) =>
+app.MapGet("/flash_lights", (LEDService ledService) =>
 {
     var cancellation = new CancellationTokenSource();
     cancellation.CancelAfter(TimeSpan.FromSeconds(2));

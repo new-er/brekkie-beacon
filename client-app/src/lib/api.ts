@@ -1,5 +1,6 @@
 import type { FeedingTime } from "./types";
 
+// Feeding times
 export async function fetchFeedingTimes(): Promise<FeedingTime[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/feeding_times`,
@@ -59,7 +60,7 @@ export async function deleteFeedingTime(id: string): Promise<void> {
   if (!res.ok) throw new Error("Failed to delete feeding time");
 }
 
-
+// Log entries
 export async function fetchLogEntries(): Promise<LogEntry[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/logs`,
@@ -68,4 +69,25 @@ export async function fetchLogEntries(): Promise<LogEntry[]> {
   
   if (!res.ok) throw new Error("Failed to fetch log messages");
   return res.json();
+}
+
+// Feed now
+export async function feedNow(): Promise<void> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/feed_now`,
+    { method: "POST" }
+  );
+
+  if (!res.ok) throw new Error("Failed to feed now");
+}
+
+
+// Flash lights
+export async function flashLights(): Promise<void> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/flash_lights`,
+    { method: "POST" }
+  );
+  
+  if (!res.ok) throw new Error("Failed to flash lights");
 }
