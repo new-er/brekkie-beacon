@@ -3,7 +3,7 @@ import FeedingTimeList from "./FeedingTimeList";
 
 type FeedingTimesViewProps = {
   items: FeedingTime[];
-  onAdd: (time: string) => void;
+  onAdd: (time: FeedingTime) => void;
   onUpdate: (item: FeedingTime) => void;
   onDelete: (id: string) => void;
 };
@@ -18,7 +18,21 @@ export default function FeedingTimesView({
 
   const handleAdd = () => {
     if (!newTimeName.trim()) return;
-    onAdd(newTimeName.trim());
+    const newFeedingTime: FeedingTime = {
+      id: crypto.randomUUID(),
+      name: newTimeName.trim(),
+      time: "12:00",
+      motorInstructions: {
+        steps: 1450,
+        waitBetweenSteps: "00:00:00.0050000",
+        negateDirection: false,
+      },
+      ledInstructions: {
+        brightness: 1,
+      },
+    };
+
+    onAdd(newFeedingTime);
     setNewTimeName("");
   };
 
@@ -33,6 +47,11 @@ export default function FeedingTimesView({
           type="text"
           value={newTimeName}
           onChange={(e) => setNewTimeName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleAdd();
+            }
+          }}
           placeholder="Add new time..."
           className="flex-grow px-3 py-2 bg-gray-900 text-gray-100 border border-gray-700 rounded focus:outline-none focus:border-blue-500"
         />
@@ -45,7 +64,6 @@ export default function FeedingTimesView({
         </button>
       </div>
 
-      {/* Feedings list */}
       <div className="space-y-3">
         <FeedingTimeList
           items={items}

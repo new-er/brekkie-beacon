@@ -34,16 +34,19 @@ export default function Home() {
   }, []);
 
   function handleAdd(time: FeedingTime) {
-    createFeedingTime(time)
+    createFeedingTime(time);
+    setFeedingTimes([...feedingTimes, time]);
   }
 
   function handleUpdate(updated: FeedingTime) {
     updateFeedingTime(updated.id, updated);
+    setFeedingTimes(feedingTimes.map(ft => ft.id === updated.id ? updated : ft));
     console.log("Updated feeding time:", updated);
   }
 
   function handleDelete(id: string) {
     deleteFeedingTime(id);
+    setFeedingTimes(feedingTimes.filter(ft => ft.id !== id));
     console.log("Deleted feeding time with id:", id);
   }
 
