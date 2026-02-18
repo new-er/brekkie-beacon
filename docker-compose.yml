@@ -1,0 +1,13 @@
+services:
+  backend:
+    image: ghcr.io/new-er/FelineFeeder-backend:latest
+    restart: always
+    ports:
+      - "5000:80"
+
+  frontend:
+    image: ghcr.io/new-er/FelineFeeder-frontend:latest
+    restart: always
+    ports:
+      - "3000:80"
+
