@@ -12,13 +12,13 @@ const ActionBar: React.FC<ActionBarProps> = ({ onFeed, onFlash }) => {
         className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded transition-colors"
         onClick={onFeed}
       >
-        Feed Now
+        Feed Now 🍽️
       </button>
       <button
         className="flex-1 bg-yellow-600 hover:bg-yellow-500 text-white font-semibold py-2 rounded transition-colors"
         onClick={onFlash}
       >
-        Flash Lights
+        Flash Lights 💡
       </button>
     </div>
   );

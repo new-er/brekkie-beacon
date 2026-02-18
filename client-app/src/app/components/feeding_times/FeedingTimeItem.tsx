@@ -65,7 +65,7 @@ export default function FeedingTimeItem({
             </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-x-3">
-              <label className="text-gray-400 text-sm min-w-[100px]">Time</label>
+              <label className="text-gray-400 text-sm min-w-[100px]">⏰ Time</label>
               <input
                 aria-label="Time"
                 type="time"
@@ -76,7 +76,7 @@ export default function FeedingTimeItem({
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-x-3">
-              <label className="text-gray-400 text-sm min-w-[100px]">Engine Steps</label>
+              <label className="text-gray-400 text-sm min-w-[100px]">⚙️ Steps</label>
               <input
                 className="flex-1 px-2 py-1 rounded bg-gray-700 text-white w-24"
                 type="number"
@@ -86,7 +86,7 @@ export default function FeedingTimeItem({
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-x-3">
-              <label className="text-gray-400 text-sm min-w-[100px]">Wait between steps</label>
+              <label className="text-gray-400 text-sm min-w-[100px]">⏱️ Wait between steps</label>
               <input
                 className="flex-1 px-2 py-1 rounded bg-gray-700 text-white w-24"
                 type="text"
@@ -97,7 +97,7 @@ export default function FeedingTimeItem({
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-x-3">
-              <label className="text-gray-400 text-sm min-w-[100px]">Negate Direction</label>
+              <label className="text-gray-400 text-sm min-w-[100px]">🔄 Direction</label>
               <label className="flex items-center gap-x-2">
                 <input
                   type="checkbox"
@@ -105,17 +105,20 @@ export default function FeedingTimeItem({
                   onChange={(e) => setEditNegate(e.target.checked)}
                   className="flex-1 accent-indigo-500"
                 />
-                <span className="text-gray-300">{editNegate ? "Yes" : "No"}</span>
+                <span className="text-gray-300">{editNegate ? "Reversed" : "Normal"}</span>
               </label>
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-x-3">
-              <label className="text-gray-400 text-sm min-w-[100px]">LED Brightness</label>
+              <label className="text-gray-400 text-sm min-w-[100px]">💡 Brightness</label>
               <input
                 className="flex-1 px-2 py-1 rounded bg-gray-700 text-white w-24"
                 type="number"
+                step={0.01}
+                min={0}
+                max={1}
                 value={editBrightness}
-                onChange={(e) => setEditBrightness(Number(e.target.value))}
+                onChange={(e) => setEditBrightness(clamp(Number(e.target.value), 0, 1))}
               />
             </div>
           </div>
@@ -123,20 +126,20 @@ export default function FeedingTimeItem({
           <div className="space-y-1">
             <div className="flex items-baseline gap-x-3">
               <span className="text-indigo-300 font-semibold">{feedingTime.name}</span>
-              <span className="text-indigo-400">— {feedingTime.time}</span>
+              <span className="text-indigo-400">— {feedingTime.time.slice(0, 5)}</span>
             </div>
 
             <div className="text-gray-400 text-sm">
-              Engine Steps: {feedingTime.motorInstructions.steps}
+              ⚙️ {feedingTime.motorInstructions.steps} steps
             </div>
             <div className="text-gray-400 text-sm">
-              Wait between steps: {feedingTime.motorInstructions.waitBetweenSteps} ms
+              ⏱️ {formatTime(feedingTime.motorInstructions.waitBetweenSteps)} ms delay between steps
             </div>
             <div className="text-gray-400 text-sm">
-              Negate Direction: {feedingTime.motorInstructions.negateDirection ? "Yes" : "No"}
+              🔄 Direction: {feedingTime.motorInstructions.negateDirection ? "Reversed" : "Normal"}
             </div>
             <div className="text-gray-400 text-sm">
-              <span>LED Brightness: {feedingTime.ledInstructions.brightness}</span>
+              💡 Brightness {feedingTime.ledInstructions.brightness}
             </div>
           </div>
         )}
@@ -181,4 +184,26 @@ export default function FeedingTimeItem({
       </div>
     </li>
   );
+}
+
+
+function formatTime(time: string): string {
+  // Extract digits after the dot (sub-second part)
+  const match = time.match(/\.(\d+)/);
+  if (!match) return "0 ms";
+
+  const nanos = Number(match[1].slice(0, 9)); // up to 9 digits
+  const ms = nanos / 10_000;
+
+  const str = ms % 1 === 0
+    ? String(ms)              // integer
+    : ms.toFixed(3)           // 3 decimals max
+        .replace(/0+$/, '')    // remove trailing zeros
+        .replace(/\.$/, '');   // remove trailing dot
+
+  return str;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
 }

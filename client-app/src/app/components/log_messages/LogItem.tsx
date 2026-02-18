@@ -7,7 +7,7 @@ type Props = {
 };
 
 export default function LogItem({ message }: Props) {
- 
+
 const levelStyles: Record<string, { dot: string; icon: React.ReactNode; text: string }> = {
   information: {
     dot: "bg-indigo-400",

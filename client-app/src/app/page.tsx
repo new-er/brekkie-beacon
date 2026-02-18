@@ -62,8 +62,18 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex gap-4 min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+    <div className="
+      flex min-h-screen items-center justify-center 
+      bg-gradient-to-br from-[#2a1e16] to-[#0f0a05]
+      font-sans">
+      <main className="
+        flex w-full max-w-4xl flex-col items-center justify-between gap-y-6
+        py-32 px-16 
+        bg-[#1e293b]/70 dark:bg-[#2a2420]/85
+        backdrop-blur-md 
+        shadow-2xl rounded-3xl 
+        border border-zinc-800/40
+        sm:items-start">
       <ActionBar onFeed={handleFeedNow} onFlash={handleFlashLights} />
       <FeedingTimesView items={feedingTimes} onAdd={handleAdd} onUpdate={handleUpdate} onDelete={handleDelete} />
       <LogList items={logEntries} />
