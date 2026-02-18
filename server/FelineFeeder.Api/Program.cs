@@ -21,14 +21,9 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
-var fullLogDbPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "logs.sqlite"));
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
-    .WriteTo.Console()
-    .WriteTo.SQLite(
-        sqliteDbPath: fullLogDbPath,
-        tableName: "Logs",
-        retentionPeriod: TimeSpan.FromDays(3))
+    .WriteTo.SQLite("Data Source=logs.db", tableName:"Logs")
     .CreateLogger();
 builder.Host.UseSerilog();
 
@@ -39,10 +34,9 @@ builder.Services.AddQuartz();
 
 builder.Services.AddDbContext<AppDbContext>(opts =>
     opts.UseSqlite("Data Source=app.db"));
-
-builder.Services.AddDbContext<LogsDbContext>(opts =>
+/*builder.Services.AddDbContext<LogsDbContext>(opts =>
     opts.UseSqlite(builder.Configuration.GetConnectionString("Logs")
-                   ?? $"Data Source={fullLogDbPath}"));
+                   ?? "Data Source=logs.db"));*/
 
 builder.Services.AddScoped<IFeedingTimeRepository, FeedingTimeRepository>();
 builder.Services.AddScoped<SchedulerService>();
@@ -105,8 +99,6 @@ app.MapPut("/feeding_times/{id}", async (Guid id, FeedingTime updated, AppDbCont
     existing.Id = updated.Id;
     existing.Name = updated.Name;
     existing.Time = updated.Time;
-    existing.LEDInstructions = updated.LEDInstructions;
-    existing.MotorInstructions = updated.MotorInstructions;
     await db.SaveChangesAsync();
     return Results.Ok(existing);
 }).WithName("UpdateFeedingTime");
@@ -131,7 +123,7 @@ app.MapGet("/feed_now", async (FeederService feederService) =>
     return Results.Ok(new { Message = "started feed now" });
 }).WithName("FeedNow");
 
-app.MapGet("/flash_lights", (LEDService ledService) =>
+app.MapGet("/flash_leds_now", (LEDService ledService) =>
 {
     var cancellation = new CancellationTokenSource();
     cancellation.CancelAfter(TimeSpan.FromSeconds(2));
@@ -142,13 +134,8 @@ app.MapGet("/flash_lights", (LEDService ledService) =>
 app.MapGet("/logs", async (LogsDbContext db) =>
     {
         var logs = await db.Logs
-            .FromSqlRaw(@"
-        SELECT *
-        FROM Logs
-        WHERE json_extract(Properties, '$.VisibleForClient') = 1
-        ORDER BY TimeStamp DESC
-        LIMIT 100
-    ")
+            .OrderByDescending(l => l.TimeStamp)
+            .Take(100)
             .ToListAsync();
 
         return Results.Ok(logs);

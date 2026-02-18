@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy-localhost:
+    runs-on: self-hosted
+    env: 
+      PUBLIC_SSH_CERTIFICATE: ${{ secrets.PUBLIC_SSH_CERTIFICATE }}
+      RUNNER_SUDO_PASSWORD: ${{ secrets.RUNNER_SUDO_PASSWORD }}
+      RUNNER_SUDO_USER: ${{ secrets.RUNNER_SUDO_USER }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: ansible update hardware
+        run: |
+          cd ansible
+          ansible-playbook generate-localhost-inventory.yml
+          ansible-playbook localhost-playbook.yml -i inventories/localhost-inventory.ini
+
