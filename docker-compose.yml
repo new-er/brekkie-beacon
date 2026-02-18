@@ -1,12 +1,12 @@
 services:
   backend:
-    image: ghcr.io/new-er/FelineFeeder-backend:latest
+    image: ghcr.io/new-er/brekkie-beacon-backend:latest
     restart: always
     ports:
       - "5000:80"
 
   frontend:
-    image: ghcr.io/new-er/FelineFeeder-frontend:latest
+    image: ghcr.io/new-er/brekkie-beacon-frontend:latest
     restart: always
     ports:
       - "3000:80"

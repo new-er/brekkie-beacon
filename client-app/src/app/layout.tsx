@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Feline Feeder",
-  description: "A simple app to manage feeding times for your feline friend.",
+  title: "BrekkieBeacon",
+  description: "Web app for scheduling feeding times of our pet friends",
 };
 
 export default function RootLayout({

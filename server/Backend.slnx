@@ -1,6 +1,6 @@
 <Solution>
-  <Project Path="FelineFeeder.Api\FelineFeeder.Api.csproj" />
-  <Project Path="FelineFeeder.Application/FelineFeeder.Application.csproj" />
-  <Project Path="FelineFeeder.Core\FelineFeeder.Core.csproj" />
-  <Project Path="FelineFeeder.Infrastructure/FelineFeeder.Infrastructure.csproj" />
+  <Project Path="BrekkieBeacon.Api\BrekkieBeacon.Api.csproj" />
+  <Project Path="BrekkieBeacon.Application\BrekkieBeacon.Application.csproj" />
+  <Project Path="BrekkieBeacon.Core\BrekkieBeacon.Core.csproj" />
+  <Project Path="BrekkieBeacon.Infrastructure\BrekkieBeacon.Infrastructure.csproj" />
 </Solution>

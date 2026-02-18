@@ -1,16 +1,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY ["FelineFeeder.Api/FelineFeeder.Api.csproj", "FelineFeeder.Api/"]
-COPY ["FelineFeeder.Core/FelineFeeder.Core.csproj", "FelineFeeder.Core/"]
-COPY ["FelineFeeder.Infrastructure/FelineFeeder.Infrastructure.csproj", "FelineFeeder.Infrastructure/"]
-COPY ["FelineFeeder.Application/FelineFeeder.Application.csproj", "FelineFeeder.Application/"]
-COPY ["Backend.slnx", "."]
+COPY ["BrekkieBeacon.Api/BrekkieBeacon.Api.csproj", "BrekkieBeacon.Api/"]
+COPY ["BrekkieBeacon.Core/BrekkieBeacon.Core.csproj", "BrekkieBeacon.Core/"]
+COPY ["BrekkieBeacon.Infrastructure/BrekkieBeacon.Infrastructure.csproj", "BrekkieBeacon.Infrastructure/"]
+COPY ["BrekkieBeacon.Application/BrekkieBeacon.Application.csproj", "BrekkieBeacon.Application/"]
+COPY ["BrekkieBeacon.slnx", "."]
 
-RUN dotnet restore "Backend.slnx"
+RUN dotnet restore "BrekkieBeacon.slnx"
 
 COPY . .
 
-RUN dotnet publish "FelineFeeder.Api/FelineFeeder.Api.csproj" -c Release -o /app/publish
+RUN dotnet publish "BrekkieBeacon.Api/BrekkieBeacon.Api.csproj" -c Release -o /app/publish
 
-ENTRYPOINT ["dotnet", "FelineFeeder.Api.dll"]
+ENTRYPOINT ["dotnet", "BrekkieBeacon.Api.dll"]
