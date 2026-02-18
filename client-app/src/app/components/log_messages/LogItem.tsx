@@ -1,12 +1,5 @@
 "use client";
 
-export type LogMessage = {
-  id: string;
-  time: string;
-  message : string;
-  level : "info" | "warning" | "error";
-};
-
 type Props = {
   message: LogMessage;
 };

@@ -1,11 +1,5 @@
 "use client";
 
-export type FeedingTime = {
-  id: string;
-  name : string;
-  time: string;
-};
-
 type Props = {
   feedingTime: FeedingTime;
 };
