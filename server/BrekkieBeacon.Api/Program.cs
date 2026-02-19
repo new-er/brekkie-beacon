@@ -19,6 +19,7 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins("http://localhost:3000")
+            .WithOrigins("http://brekkies.local")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
