@@ -2,14 +2,16 @@ services:
   server:
     image: ghcr.io/new-er/brekkie-beacon/brekkie-beacon-server:latest
     restart: always
+    pull_policy: always
     ports:
       - "5098:8080"
 
   client-app:
     image: ghcr.io/new-er/brekkie-beacon/brekkie-beacon-client:latest
+    pull_policy: always
     restart: always
     environment:
-      - NEXT_PUBLIC_API_BASE_URL=http://server:8080
+      - API_BASE_URL=http://localhost:5098
     ports:
       - "3000:3000"
 
