@@ -1,9 +1,21 @@
 import type { FeedingTime, LogEntry } from "./types";
 
+export function setClientApiBaseUrl(url: string) {
+  CLIENT_API_BASE_URL = url;
+}
+var CLIENT_API_BASE_URL : string|null = null; 
+
+function getApiBaseUrl() {
+  const nextApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+  if (nextApiBaseUrl) return nextApiBaseUrl;
+  if (CLIENT_API_BASE_URL) return CLIENT_API_BASE_URL;
+  throw new Error("API base URL is not configured");
+}
+
 // Feeding times
 export async function fetchFeedingTimes(): Promise<FeedingTime[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/feeding_times`,
+    `${getApiBaseUrl()}/feeding_times`,
     { cache: "no-store" }
   );
 
@@ -13,7 +25,7 @@ export async function fetchFeedingTimes(): Promise<FeedingTime[]> {
 
 export async function fetchFeedingTime(id: string): Promise<FeedingTime> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/feeding_times/${id}`
+    `${getApiBaseUrl()}/feeding_times/${id}`
   );
 
   if (!res.ok) throw new Error("Failed to fetch feeding time");
@@ -24,7 +36,7 @@ export async function createFeedingTime(
   feedingTime: Omit<FeedingTime, "id">
 ): Promise<FeedingTime> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/feeding_times`,
+    `${getApiBaseUrl()}/feeding_times`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -40,7 +52,7 @@ export async function updateFeedingTime(
   feedingTime: Partial<FeedingTime>
 ): Promise<FeedingTime> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/feeding_times/${id}`,
+    `${getApiBaseUrl()}/feeding_times/${id}`,
     {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -53,7 +65,7 @@ export async function updateFeedingTime(
 
 export async function deleteFeedingTime(id: string): Promise<void> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/feeding_times/${id}`,
+    `${getApiBaseUrl()}/feeding_times/${id}`,
     { method: "DELETE" }
   );
 
@@ -63,7 +75,7 @@ export async function deleteFeedingTime(id: string): Promise<void> {
 // Log entries
 export async function fetchLogEntries(): Promise<LogEntry[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/logs`,
+    `${getApiBaseUrl()}/logs`,
     { cache: "no-store" }
   );
   
@@ -74,7 +86,7 @@ export async function fetchLogEntries(): Promise<LogEntry[]> {
 // Feed now
 export async function feedNow(): Promise<void> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/feed_now`,
+    `${getApiBaseUrl()}/feed_now`,
     { method: "POST" }
   );
 
@@ -85,7 +97,7 @@ export async function feedNow(): Promise<void> {
 // Flash lights
 export async function flashLights(): Promise<void> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/flash_lights`,
+    `${getApiBaseUrl()}/flash_lights`,
     { method: "POST" }
   );
   

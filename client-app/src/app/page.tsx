@@ -5,10 +5,24 @@ import LogList from "./components/log_messages/LogList";
 import { fetchFeedingTimes, createFeedingTime, updateFeedingTime, deleteFeedingTime, fetchLogEntries, feedNow, flashLights } from "@/lib/api";
 import { useEffect, useState } from "react";
 import type { FeedingTime, LogEntry } from "@/lib/types";
+import { setApiBaseUrl } from "@/lib/api";
 
 export default function Home() {
   var [feedingTimes, setFeedingTimes] = useState<FeedingTime[]>([]);
   var [logEntries, setLogEntries] = useState<LogEntry[]>([]);
+  const [apiBaseUrl, setApiBaseUrl] = useState("");
+
+  useEffect(() => {
+    const loadConfig = async () => {
+      const res = await fetch("/api/config");
+      const data = await res.json();
+      setApiBaseUrl(data.apiBaseUrl);
+      console.log("Loaded API base URL:", data.apiBaseUrl);
+    };
+
+    loadConfig();
+  }, []);
+
 
   useEffect(() => {
     async function load() {
