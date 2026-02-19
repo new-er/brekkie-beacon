@@ -34,7 +34,7 @@ export default function Home() {
       }
     }
     load();
-  }, []);
+  }, [apiBaseUrl]);
 
   useEffect(() => {
     async function loadLogs() {
@@ -46,7 +46,7 @@ export default function Home() {
       }
     }
     loadLogs();
-  }, []);
+  }, [apiBaseUrl]);
 
   function handleAdd(time: FeedingTime) {
     createFeedingTime(time);
