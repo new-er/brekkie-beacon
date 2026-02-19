@@ -48,5 +48,7 @@ jobs:
         tags: |
           ghcr.io/${{ github.repository }}/brekkie-beacon-client:latest
           ghcr.io/${{ github.repository }}/brekkie-beacon-client:${{ github.sha }}
+        build-args: |
+          NEXT_PUBLIC_API_BASE_URL=${{ secrets.API_BASE_URL }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
