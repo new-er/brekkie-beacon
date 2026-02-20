@@ -7,7 +7,7 @@ var CLIENT_API_BASE_URL : string|null = null;
 
 function getApiBaseUrl() {
   if (CLIENT_API_BASE_URL) return CLIENT_API_BASE_URL;
-  const nextApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+  const nextApiBaseUrl = process.env.API_BASE_URL;
   if (nextApiBaseUrl) return nextApiBaseUrl;
   throw new Error("API base URL is not configured");
 }
