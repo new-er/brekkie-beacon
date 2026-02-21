@@ -124,16 +124,16 @@ app.MapGet("/feeding_times", async (AppDbContext db) =>
     return times;
 }).WithName("GetFeedingTimes");
 
-app.MapGet("/feed_now", async (FeederService feederService) =>
+app.MapPost("/feed_now", async (FeederService feederService) =>
 {
     _ = feederService.Feed(MotorInstructions.Default, CancellationToken.None);
     return Results.Ok(new { Message = "started feed now" });
 }).WithName("FeedNow");
 
-app.MapGet("/flash_leds_now", (LEDService ledService) =>
+app.MapPost("/flash_lights", (LEDService ledService) =>
 {
     var cancellation = new CancellationTokenSource();
-    cancellation.CancelAfter(TimeSpan.FromSeconds(2));
+    cancellation.CancelAfter(TimeSpan.FromSeconds(10));
     _ = ledService.StartTestFlash(cancellation.Token);
     return Results.Ok(new { Message = "started light flash" });
 }).WithName("FlashLEDsNow");
