@@ -11,4 +11,8 @@
       <ProjectReference Include="..\BrekkieBeacon.Infrastructure\BrekkieBeacon.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.2.9" />
+    </ItemGroup>
+
 </Project>

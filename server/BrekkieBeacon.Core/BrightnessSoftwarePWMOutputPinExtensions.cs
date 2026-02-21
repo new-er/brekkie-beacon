@@ -43,9 +43,9 @@ public static class BrightnessSoftwarePWMOutputPinExtensions
         await cancellation.WhileNotCancelled(async () =>
         {
             softwarePWMPins.ForEach(pin => pin.SetDutyCycle(1, 1));
-            await Task.Delay(TimeSpan.FromSeconds(0.5));
+            await Task.Delay(TimeSpan.FromSeconds(0.5), cancellation);
             softwarePWMPins.ForEach(pin => pin.SetDutyCycle(0, 1));
-            await Task.Delay(TimeSpan.FromSeconds(0.5));
+            await Task.Delay(TimeSpan.FromSeconds(0.5), cancellation);
         });
         softwarePWMPins.ForEach(pin => pin.SetDutyCycle(0, 1));
     }
@@ -67,7 +67,7 @@ public static class BrightnessSoftwarePWMOutputPinExtensions
                 if (dutyCycle > 1) dutyCycle = 1;
                 pin.SetDutyCycle(dutyCycle, 1);
             });
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await Task.Delay(TimeSpan.FromSeconds(1), cancellation);
         });
 
     }

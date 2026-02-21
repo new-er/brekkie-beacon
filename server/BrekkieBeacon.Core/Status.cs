@@ -1,6 +1,3 @@
 namespace BrekkieBeacon.Core;
 
-public class Status
-{
-    
-}
+public record Status(bool IsRunning);

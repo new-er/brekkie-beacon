@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 
-namespace BrekkieBeacon.Application.Status;
+namespace BrekkieBeacon.Application;
 
 public class StatusHub : Hub
 {

@@ -24,6 +24,7 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+builder.Services.AddSignalR();
 
 var fullLogDbPath = Path.Combine(Directory.GetCurrentDirectory(), "logs.db");
 Log.Logger = new LoggerConfiguration()
@@ -45,13 +46,13 @@ builder.Services.AddDbContext<LogsDbContext>(opts =>
 
 builder.Services.AddScoped<IFeedingTimeRepository, FeedingTimeRepository>();
 builder.Services.AddScoped<SchedulerService>();
-builder.Services.AddScoped<FeederService>();
-builder.Services.AddScoped<LEDService>();
+builder.Services.AddSingleton<FeederService>();
+builder.Services.AddSingleton<LEDService>();
 
 var app = builder.Build();
 app.UseCors("FrontendPolicy");
 app.UseSerilogRequestLogging();
-
+app.MapHub<StatusHub>("/status");
 
 using var scope = app.Services.CreateScope();
 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -76,7 +77,6 @@ if (!await db.FeedingTimes.AnyAsync())
     await db.SaveChangesAsync();
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -130,6 +130,11 @@ app.MapPost("/feed_now", async (FeederService feederService) =>
     return Results.Ok(new { Message = "started feed now" });
 }).WithName("FeedNow");
 
+app.MapGet("/motor_status", async (FeederService feederService) =>
+{
+    return Results.Ok(new Status(feederService.IsRunning));
+}).WithName("MotorStatus");
+
 app.MapPost("/flash_lights", (LEDService ledService) =>
 {
     var cancellation = new CancellationTokenSource();
@@ -137,6 +142,10 @@ app.MapPost("/flash_lights", (LEDService ledService) =>
     _ = ledService.StartTestFlash(cancellation.Token);
     return Results.Ok(new { Message = "started light flash" });
 }).WithName("FlashLEDsNow");
+app.MapGet("/lights_status", async (LEDService ledService) =>
+{
+    return Results.Ok(new Status(ledService.IsRunning));
+}).WithName("LEDStatus");
 
 app.MapGet("/logs", async ([FromServices] LogsDbContext db) =>
     {

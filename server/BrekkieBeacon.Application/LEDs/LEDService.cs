@@ -1,9 +1,10 @@
 using BrekkieBeacon.Core;
 using Dotcore.GPIO.Pins;
+using Microsoft.AspNetCore.SignalR;
 
 namespace BrekkieBeacon.Application.LEDs;
 
-public class LEDService
+public class LEDService(IHubContext<StatusHub> hubContext)
 {
     private readonly OutputPin[] pins =
     [
@@ -12,47 +13,40 @@ public class LEDService
         IPinFactory.Instance.Output(16), //36
         IPinFactory.Instance.Output(12) //32
     ];
+    
+    
+    public bool IsRunning => isRunning;
+    private bool isRunning;
 
-    public async Task StartDimmedLedCountdown(DateTimeOffset countdownTarget, CancellationToken cancellation)
-    {
-        var softwarePWMPins = CreateSoftwarePWMPins().ToArray();
-        softwarePWMPins.ForEach(pin => pin.Start());
-        var perPin = LEDInstructions.StartDimmingCountdown / softwarePWMPins.Length;
-        try
-        {
-            await softwarePWMPins.DimmedCountdown(perPin, () => countdownTarget - DateTimeOffset.Now, cancellation);
-        }
-        finally
-        {
-            softwarePWMPins.ForEach(pin => pin.Dispose());
-        }
-    }
+    public Task StartDimmedLedCountdown(DateTimeOffset countdownTarget, CancellationToken cancellation) 
+        => StartFlash(pins => pins.DimmedCountdown(
+            LEDInstructions.StartDimmingCountdown / pins.Length, 
+            () => countdownTarget - DateTimeOffset.Now, 
+            cancellation));
+    
+    public Task StartFlashingLedCountdown(CancellationToken cancellation) 
+        => StartFlash(pins => pins.FlashAll(cancellation));
 
-    public async Task StartFlashingLedCountdown(CancellationToken cancellation)
-    {
-        var softwarePWMPins = CreateSoftwarePWMPins().ToArray();
-        softwarePWMPins.ForEach(pin => pin.Start());
-        try
-        {
-            await softwarePWMPins.FlashAll(cancellation);
-        }
-        finally
-        {
-            softwarePWMPins.ForEach(pin => pin.Dispose());
-        }
-    }
+    public Task StartTestFlash(CancellationToken cancellation) 
+        => StartFlash(pins => pins.FlashTest(TimeSpan.FromSeconds(0.25), cancellation));
 
-    public async Task StartTestFlash(CancellationToken cancellation)
+    private async Task StartFlash(Func<BrightnessSoftwarePWMOutputPin[], Task> flashFunc)
     {
+        if(isRunning) return;
+        isRunning = true;
+        await hubContext.Clients.All.SendAsync("LedStatusChanged", new Status(true));
+        
         var softwarePWMPins = CreateSoftwarePWMPins().ToArray();
         softwarePWMPins.ForEach(pin => pin.Start());
         try
         {
-            await softwarePWMPins.FlashTest(TimeSpan.FromSeconds(0.25), cancellation);
+            await flashFunc(softwarePWMPins);
         }
         finally
         {
             softwarePWMPins.ForEach(pin => pin.Dispose());
+            isRunning = false;
+            await hubContext.Clients.All.SendAsync("LedStatusChanged", new Status(false));
         }
     }
 
