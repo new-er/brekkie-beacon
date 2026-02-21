@@ -17,6 +17,7 @@ export default function Home() {
       const res = await fetch("/api/config");
       const data = await res.json();
       setClientApiBaseUrl(data.apiBaseUrl);
+      setApiBaseUrl(data.apiBaseUrl);
       console.log("Loaded API base URL:", data.apiBaseUrl);
     };
 
