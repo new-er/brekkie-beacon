@@ -9,8 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using Quartz;
 using Serilog;
 
-InitializePinFactory.Mock();
-//InitializePinFactory.Production();
+var pinMode = Environment.GetEnvironmentVariable("PIN_MODE");
+if (pinMode == null || pinMode.Equals("Mock", StringComparison.OrdinalIgnoreCase)) InitializePinFactory.Mock();
+else InitializePinFactory.Production();
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
