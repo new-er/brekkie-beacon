@@ -15,34 +15,49 @@ public class FeederService(IHubContext<StatusHub> hubContext, ILogger<FeederServ
             IPinFactory.Instance.Output(13)) //33
         { Enable = false };
 
-    public bool IsRunning => isRunning;
-    private bool isRunning;
+    private CancellationTokenSource? _cts;
+    private readonly Lock _lock = new();
 
-    public async Task Feed(MotorInstructions motorInstructions, CancellationToken cancellation)
+    public bool IsRunning => _cts != null;
+
+    public async Task StartFeed(MotorInstructions motorInstructions)
     {
-        if (isRunning) return;
+        lock (_lock)
+        {
+            if (_cts != null) return;
+            _cts = new CancellationTokenSource();
+        }
+        
         _stepEngine.Direction = motorInstructions.NegateDirection;
-        isRunning = true;
-        await hubContext.Clients.All.SendAsync("MotorStatusChanged", new State(true), cancellation);
-
+        await hubContext.Clients.All.SendAsync("MotorStatusChanged", new State(true));
         logger.LogInformationVisibleForClient("Feeder started");
+        
         try
         {
             await _stepEngine
                 .Steps(
                     () => motorInstructions.Steps,
                     () => motorInstructions.WaitBetweenSteps,
-                    cancellation);
+                    _cts.Token);
         }
         catch (TaskCanceledException)
         {
         }
         finally
         {
+            _cts?.Dispose();
+            _cts = null;
             _stepEngine.Enable = false;
-            isRunning = false;
             logger.LogInformationVisibleForClient("Feeder stopped");
-            await hubContext.Clients.All.SendAsync("MotorStatusChanged", new State(false), cancellation);
+            await hubContext.Clients.All.SendAsync("MotorStatusChanged", new State(false));
+        }
+    }
+    
+    public void StopFeed()
+    {
+        lock (_lock)
+        {
+            _cts?.Cancel();
         }
     }
 }

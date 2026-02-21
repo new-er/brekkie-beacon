@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using Quartz;
 using Serilog;
 
-var pinMode = Environment.GetEnvironmentVariable("PIN_MODE");
-if (pinMode == null || pinMode.Equals("Mock", StringComparison.OrdinalIgnoreCase)) InitializePinFactory.Mock();
-else InitializePinFactory.Production();
+var pinMode = Environment.GetEnvironmentVariable("PIN_MODE") ?? "Mock";
+if (pinMode.Equals("Production", StringComparison.OrdinalIgnoreCase)) InitializePinFactory.Production();
+else InitializePinFactory.Mock();
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
@@ -51,7 +51,7 @@ var app = builder.Build();
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .WriteTo.Sink(new SignalRSink(app.Services))
-    .WriteTo.SQLite(sqliteDbPath: fullLogDbPath, tableName:"Logs", retentionPeriod: TimeSpan.FromDays(7))
+    .WriteTo.SQLite(sqliteDbPath: fullLogDbPath, tableName: "Logs", retentionPeriod: TimeSpan.FromDays(7))
     .WriteTo.Console()
     .CreateLogger();
 
@@ -129,28 +129,37 @@ app.MapGet("/feeding_times", async (AppDbContext db) =>
     return times;
 }).WithName("GetFeedingTimes");
 
-app.MapPost("/feed_now", async (FeederService feederService) =>
+app.MapPost("/feed_now", (FeederService feederService) =>
 {
-    _ = feederService.Feed(MotorInstructions.Default, CancellationToken.None);
-    return Results.Ok(new { Message = "started feed now" });
+    _ = feederService.StartFeed(MotorInstructions.Default);
+    return Results.Ok(new { Message = "started feeder" });
 }).WithName("FeedNow");
-
-app.MapGet("/motor_status", async (FeederService feederService) =>
+app.MapPost("/stop_feed", (FeederService feederService) =>
 {
-    return Results.Ok(new State(feederService.IsRunning));
-}).WithName("MotorStatus");
+    feederService.StopFeed();
+    return Results.Ok(new { Message = "stopped feeder" });
+}).WithName("StopFeed");
+app.MapGet("/motor_status", (FeederService feederService) => Results.Ok(new State(feederService.IsRunning)))
+    .WithName("MotorStatus");
 
 app.MapPost("/flash_lights", (LEDService ledService) =>
 {
-    var cancellation = new CancellationTokenSource();
-    cancellation.CancelAfter(TimeSpan.FromSeconds(10));
-    _ = ledService.StartTestFlash(cancellation.Token);
+    if (ledService.IsRunning) return Results.Ok(new { Message = "already flashing" });
+    _ = ledService.StartTestFlash();
+    Task.Run(async () =>
+    {
+        await Task.Delay(TimeSpan.FromSeconds(10));
+        ledService.StopFlash();
+    });
     return Results.Ok(new { Message = "started light flash" });
 }).WithName("FlashLEDsNow");
-app.MapGet("/lights_status", async (LEDService ledService) =>
+app.MapPost("/stop_lights", (LEDService ledService) =>
 {
-    return Results.Ok(new State(ledService.IsRunning));
-}).WithName("LEDStatus");
+    ledService.StopFlash();
+    return Results.Ok(new { Message = "stopped led service" });
+}).WithName("StopLEDs");
+app.MapGet("/lights_status", (LEDService ledService) => Results.Ok(new State(ledService.IsRunning)))
+    .WithName("LEDStatus");
 
 app.MapGet("/logs", async ([FromServices] LogsDbContext db) =>
     {
@@ -163,7 +172,7 @@ app.MapGet("/logs", async ([FromServices] LogsDbContext db) =>
         LIMIT 100
     ")
             .ToListAsync();
-        
+
         return Results.Ok(logs);
     })
     .WithName("GetLogs");

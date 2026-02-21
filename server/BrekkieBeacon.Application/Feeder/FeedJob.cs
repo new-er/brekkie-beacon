@@ -5,6 +5,5 @@ namespace BrekkieBeacon.Application.Feeder;
 
 public class FeedJob(FeederService feederService) : IJob
 {
-    public Task Execute(IJobExecutionContext context) 
-        => feederService.Feed(MotorInstructions.Default, CancellationToken.None);
+    public Task Execute(IJobExecutionContext context) => feederService.StartFeed(MotorInstructions.Default);
 }

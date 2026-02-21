@@ -15,38 +15,53 @@ public class LEDService(IHubContext<StatusHub> hubContext)
     ];
     
     
-    public bool IsRunning => isRunning;
-    private bool isRunning;
+    private CancellationTokenSource? _cts;
+    private readonly Lock _lock = new();
 
-    public Task StartDimmedLedCountdown(DateTimeOffset countdownTarget, CancellationToken cancellation) 
-        => StartFlash(pins => pins.DimmedCountdown(
+    public bool IsRunning => _cts != null;
+
+    public Task StartDimmedLedCountdown(DateTimeOffset countdownTarget) 
+        => StartFlash((pins, cancellation) => pins.DimmedCountdown(
             LEDInstructions.StartDimmingCountdown / pins.Length, 
             () => countdownTarget - DateTimeOffset.Now, 
             cancellation));
     
-    public Task StartFlashingLedCountdown(CancellationToken cancellation) 
-        => StartFlash(pins => pins.FlashAll(cancellation));
+    public Task StartFlashingLedCountdown() 
+        => StartFlash((pins, cancellation) => pins.FlashAll(cancellation));
 
-    public Task StartTestFlash(CancellationToken cancellation) 
-        => StartFlash(pins => pins.FlashTest(TimeSpan.FromSeconds(0.25), cancellation));
+    public Task StartTestFlash() 
+        => StartFlash((pins, cancellation) => pins.FlashTest(TimeSpan.FromSeconds(0.25), cancellation));
 
-    private async Task StartFlash(Func<BrightnessSoftwarePWMOutputPin[], Task> flashFunc)
+    private async Task StartFlash(Func<BrightnessSoftwarePWMOutputPin[], CancellationToken, Task> flashFunc)
     {
-        if(isRunning) return;
-        isRunning = true;
-        await hubContext.Clients.All.SendAsync("LedStatusChanged", new State(true));
+        lock (_lock)
+        {
+            if (_cts != null) return;
+            _cts = new CancellationTokenSource();
+        }
         
         var softwarePWMPins = CreateSoftwarePWMPins().ToArray();
-        softwarePWMPins.ForEach(pin => pin.Start());
+        
         try
         {
-            await flashFunc(softwarePWMPins);
+            await hubContext.Clients.All.SendAsync("LedStatusChanged", new State(true));
+            softwarePWMPins.ForEach(pin => pin.Start());
+            await flashFunc(softwarePWMPins, _cts.Token);
         }
         finally
         {
             softwarePWMPins.ForEach(pin => pin.Dispose());
-            isRunning = false;
             await hubContext.Clients.All.SendAsync("LedStatusChanged", new State(false));
+        }
+    }
+
+    public void StopFlash()
+    {
+        lock (_lock)
+        {
+            if (_cts == null) return;
+            _cts.Cancel();
+            _cts = null;
         }
     }
 

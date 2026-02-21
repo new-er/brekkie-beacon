@@ -2,11 +2,11 @@ using Quartz;
 
 namespace BrekkieBeacon.Application.LEDs;
 
-public class StartFlashingLedCountdownJob(LEDService ledService) : IJob
+public class StopFlashingJob(LEDService ledService) : IJob
 {
     public Task Execute(IJobExecutionContext context)
     {
-        ledService.StartFlashingLedCountdown();
+        ledService.StopFlash();
         return Task.CompletedTask;
     }
 }

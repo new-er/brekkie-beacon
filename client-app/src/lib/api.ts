@@ -46,11 +46,13 @@ export const api = {
  
   motor: {
     feed: () => request<void>("/feed_now", { method: "POST" }),
+    stop: () => request<void>("/stop_feed", { method: "POST" }),
     status: () => request<{ running: boolean }>("/motor_status", { cache: "no-store" }),
   },
 
   lights: {
     flash: () => request<void>("/flash_lights", { method: "POST" }),
+    stop: () => request<void>("/stop_lights", { method: "POST" }),
     status: () => request<{ running: boolean }>("/lights_status", { cache: "no-store" }),
   },
 

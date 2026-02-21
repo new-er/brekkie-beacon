@@ -66,8 +66,6 @@ export default function Home() {
         ]);
         setFeedingTimes(times);
         setLogEntries(logs);
-        // Note: We don't need to manually set Motor/Lights here 
-        // IF the hub connects instantly, but it's good for a fast initial paint.
       } catch (error) {
         console.error("Error loading initial data:", error);
       }
@@ -99,9 +97,19 @@ export default function Home() {
     console.log("Fed the cat immediately!");
   }
 
+  function handleStopFeed() {
+    api.motor.stop();
+    console.log("Stopped the feeding motor!");
+  }
+
   function handleFlashLights() {
     api.lights.flash();
     console.log("Flashed the lights!");
+  }
+
+  function handleStopLights() {
+    api.lights.stop();
+    console.log("Stopped the lights!");
   }
 
   return (
@@ -117,7 +125,13 @@ export default function Home() {
         shadow-2xl rounded-3xl 
         border border-zinc-800/40
         sm:items-start">
-      <ActionBar onFeed={handleFeedNow} onFlash={handleFlashLights} isMotorRunning={motorRunning} isLightsFlashing={lightsFlashing} />
+      <ActionBar 
+        onFeed={handleFeedNow} 
+        onFlash={handleFlashLights} 
+        onStopFeed={handleStopFeed} 
+        onStopFlash={handleStopLights}
+        isMotorRunning={motorRunning} 
+        isLightsFlashing={lightsFlashing} />
       <FeedingTimesView items={feedingTimes} onAdd={handleAdd} onUpdate={handleUpdate} onDelete={handleDelete} />
       <LogList items={logEntries} />
       </main>
