@@ -34,7 +34,7 @@ public class LEDService(IHubContext<StatusHub> hubContext)
     {
         if(isRunning) return;
         isRunning = true;
-        await hubContext.Clients.All.SendAsync("LedStatusChanged", new Status(true));
+        await hubContext.Clients.All.SendAsync("LedStatusChanged", new State(true));
         
         var softwarePWMPins = CreateSoftwarePWMPins().ToArray();
         softwarePWMPins.ForEach(pin => pin.Start());
@@ -46,7 +46,7 @@ public class LEDService(IHubContext<StatusHub> hubContext)
         {
             softwarePWMPins.ForEach(pin => pin.Dispose());
             isRunning = false;
-            await hubContext.Clients.All.SendAsync("LedStatusChanged", new Status(false));
+            await hubContext.Clients.All.SendAsync("LedStatusChanged", new State(false));
         }
     }
 

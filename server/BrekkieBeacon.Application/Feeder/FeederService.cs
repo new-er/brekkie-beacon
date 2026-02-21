@@ -23,7 +23,7 @@ public class FeederService(IHubContext<StatusHub> hubContext, ILogger<FeederServ
         if (isRunning) return;
         _stepEngine.Direction = motorInstructions.NegateDirection;
         isRunning = true;
-        await hubContext.Clients.All.SendAsync("LedStatusChanged", new Status(true), cancellation);
+        await hubContext.Clients.All.SendAsync("MotorStatusChanged", new State(true), cancellation);
 
         logger.LogInformationVisibleForClient("Feeder started");
         try
@@ -42,7 +42,7 @@ public class FeederService(IHubContext<StatusHub> hubContext, ILogger<FeederServ
             _stepEngine.Enable = false;
             isRunning = false;
             logger.LogInformationVisibleForClient("Feeder stopped");
-            await hubContext.Clients.All.SendAsync("LedStatusChanged", new Status(false), cancellation);
+            await hubContext.Clients.All.SendAsync("MotorStatusChanged", new State(false), cancellation);
         }
     }
 }

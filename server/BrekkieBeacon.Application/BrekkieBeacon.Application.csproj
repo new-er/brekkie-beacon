@@ -10,9 +10,13 @@
       <ProjectReference Include="..\BrekkieBeacon.Core\BrekkieBeacon.Core.csproj" />
       <ProjectReference Include="..\BrekkieBeacon.Infrastructure\BrekkieBeacon.Infrastructure.csproj" />
     </ItemGroup>
-
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.2.9" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="Serilog">
+        <HintPath>..\..\..\..\.nuget\packages\serilog\4.3.0\lib\net9.0\Serilog.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

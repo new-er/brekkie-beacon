@@ -1,6 +1,7 @@
 using BrekkieBeacon.Application;
 using BrekkieBeacon.Application.Feeder;
 using BrekkieBeacon.Application.LEDs;
+using BrekkieBeacon.Application.Logging;
 using BrekkieBeacon.Core;
 using BrekkieBeacon.Infrastructure;
 using Dotcore.GPIO.Pins;
@@ -19,19 +20,15 @@ builder.Services.AddCors(options =>
     options.AddPolicy("FrontendPolicy", policy =>
     {
         policy
-            .AllowAnyOrigin()
+            .WithOrigins("http://localhost:3000", "http://brekkies.local")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 builder.Services.AddSignalR();
 
 var fullLogDbPath = Path.Combine(Directory.GetCurrentDirectory(), "logs.db");
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .WriteTo.SQLite(sqliteDbPath: fullLogDbPath, tableName:"Logs", retentionPeriod: TimeSpan.FromDays(7))
-    .WriteTo.Console()
-    .CreateLogger();
 builder.Host.UseSerilog();
 
 builder.Services.AddOpenApi();
@@ -46,13 +43,21 @@ builder.Services.AddDbContext<LogsDbContext>(opts =>
 
 builder.Services.AddScoped<IFeedingTimeRepository, FeedingTimeRepository>();
 builder.Services.AddScoped<SchedulerService>();
+builder.Services.AddScoped<LogService>();
 builder.Services.AddSingleton<FeederService>();
 builder.Services.AddSingleton<LEDService>();
 
 var app = builder.Build();
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.Sink(new SignalRSink(app.Services))
+    .WriteTo.SQLite(sqliteDbPath: fullLogDbPath, tableName:"Logs", retentionPeriod: TimeSpan.FromDays(7))
+    .WriteTo.Console()
+    .CreateLogger();
+
 app.UseCors("FrontendPolicy");
 app.UseSerilogRequestLogging();
-app.MapHub<StatusHub>("/status");
+app.MapHub<StatusHub>("/statusHub");
 
 using var scope = app.Services.CreateScope();
 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -132,7 +137,7 @@ app.MapPost("/feed_now", async (FeederService feederService) =>
 
 app.MapGet("/motor_status", async (FeederService feederService) =>
 {
-    return Results.Ok(new Status(feederService.IsRunning));
+    return Results.Ok(new State(feederService.IsRunning));
 }).WithName("MotorStatus");
 
 app.MapPost("/flash_lights", (LEDService ledService) =>
@@ -144,7 +149,7 @@ app.MapPost("/flash_lights", (LEDService ledService) =>
 }).WithName("FlashLEDsNow");
 app.MapGet("/lights_status", async (LEDService ledService) =>
 {
-    return Results.Ok(new Status(ledService.IsRunning));
+    return Results.Ok(new State(ledService.IsRunning));
 }).WithName("LEDStatus");
 
 app.MapGet("/logs", async ([FromServices] LogsDbContext db) =>

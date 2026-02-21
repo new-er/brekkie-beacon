@@ -6,13 +6,15 @@ import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import type { FeedingTime, LogEntry } from "@/lib/types";
 import { setClientApiBaseUrl } from "@/lib/api";
+import { useStatusHub } from "@/hooks/useStatusHub";
 
 export default function Home() {
   const [feedingTimes, setFeedingTimes] = useState<FeedingTime[]>([]);
   const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
   const [apiBaseUrl, setApiBaseUrl] = useState("");
-  const [motorRunning, setMotorRunning] = useState(false);
-  const [lightsFlashing, setLightsFlashing] = useState(false);
+  const { motorRunning, lightsFlashing } = useStatusHub(apiBaseUrl, () => {
+    api.logs.list().then(setLogEntries).catch(console.error);
+  });
 
   useEffect(() => {
     const loadConfig = async () => {
@@ -52,34 +54,28 @@ export default function Home() {
   }, [apiBaseUrl]);
 
   useEffect(() => {
-    async function checkMotorStatus() {
+    if (!apiBaseUrl) return;
+    
+    const loadInitialData = async () => {
       try {
-        const status = await api.motor.status();
-        setMotorRunning(status.isRunning);
+        const [times, logs, motor, lights] = await Promise.all([
+          api.feedingTimes.list(),
+          api.logs.list(),
+          api.motor.status(),
+          api.lights.status()
+        ]);
+        setFeedingTimes(times);
+        setLogEntries(logs);
+        // Note: We don't need to manually set Motor/Lights here 
+        // IF the hub connects instantly, but it's good for a fast initial paint.
       } catch (error) {
-        console.error("Error checking motor status:", error);
+        console.error("Error loading initial data:", error);
       }
-    }
+    };
 
-    async function checkLightsStatus() {
-      try {
-        const status = await api.lights.status();
-        setLightsFlashing(status.isRunning);
-      } catch (error) {
-        console.error("Error checking lights status:", error);
-      }
-    }
-
-    checkMotorStatus();
-    checkLightsStatus();
-
-    const interval = setInterval(() => {
-      checkMotorStatus();
-      checkLightsStatus();
-    }, 200);
-
-    return () => clearInterval(interval);
+    loadInitialData();
   }, [apiBaseUrl]);
+
 
   function handleAdd(time: FeedingTime) {
     api.feedingTimes.create(time);
