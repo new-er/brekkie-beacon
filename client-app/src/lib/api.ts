@@ -1,105 +1,60 @@
 import type { FeedingTime, LogEntry } from "./types";
 
-export function setClientApiBaseUrl(url: string) {
-  CLIENT_API_BASE_URL = url;
-}
-var CLIENT_API_BASE_URL : string|null = null; 
+let CLIENT_API_BASE_URL: string | null = null;
 
-function getApiBaseUrl() {
-  if (CLIENT_API_BASE_URL) return CLIENT_API_BASE_URL;
-  const nextApiBaseUrl = process.env.API_BASE_URL;
-  if (nextApiBaseUrl) return nextApiBaseUrl;
-  throw new Error("API base URL is not configured");
-}
+export const setClientApiBaseUrl = (url: string) => { CLIENT_API_BASE_URL = url; };
 
-// Feeding times
-export async function fetchFeedingTimes(): Promise<FeedingTime[]> {
-  const res = await fetch(
-    `${getApiBaseUrl()}/feeding_times`,
-    { cache: "no-store" }
-  );
+const getBaseUrl = () => {
+  const url = CLIENT_API_BASE_URL || process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!url) throw new Error("API base URL is not configured");
+  return url.endsWith('/') ? url.slice(0, -1) : url;
+};
 
-  if (!res.ok) throw new Error("Failed to fetch feeding times");
-  return res.json();
-}
-
-export async function fetchFeedingTime(id: string): Promise<FeedingTime> {
-  const res = await fetch(
-    `${getApiBaseUrl()}/feeding_times/${id}`
-  );
-
-  if (!res.ok) throw new Error("Failed to fetch feeding time");
-  return res.json();
-}
-
-export async function createFeedingTime(
-  feedingTime: Omit<FeedingTime, "id">
-): Promise<FeedingTime> {
-  const res = await fetch(
-    `${getApiBaseUrl()}/feeding_times`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(feedingTime),
-    }
-  );
-  if (!res.ok) throw new Error("Failed to create feeding time");
-  return res.json();
-}
-
-export async function updateFeedingTime(
-  id: string,
-  feedingTime: Partial<FeedingTime>
-): Promise<FeedingTime> {
-  const res = await fetch(
-    `${getApiBaseUrl()}/feeding_times/${id}`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(feedingTime),
-    }
-  );
-  if (!res.ok) throw new Error("Failed to update feeding time");
-  return res.json();
-}
-
-export async function deleteFeedingTime(id: string): Promise<void> {
-  const res = await fetch(
-    `${getApiBaseUrl()}/feeding_times/${id}`,
-    { method: "DELETE" }
-  );
-
-  if (!res.ok) throw new Error("Failed to delete feeding time");
-}
-
-// Log entries
-export async function fetchLogEntries(): Promise<LogEntry[]> {
-  const res = await fetch(
-    `${getApiBaseUrl()}/logs`,
-    { cache: "no-store" }
-  );
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const url = `${getBaseUrl()}${path}`;
   
-  if (!res.ok) throw new Error("Failed to fetch log messages");
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options?.headers,
+  };
+
+  const res = await fetch(url, { ...options, headers });
+
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.message || `API Error: ${res.status} ${res.statusText}`);
+  }
+
+  if (res.status === 204 || res.headers.get("content-length") === "0") {
+    return {} as T;
+  }
+
   return res.json();
 }
 
-// Feed now
-export async function feedNow(): Promise<void> {
-  const res = await fetch(
-    `${getApiBaseUrl()}/feed_now`,
-    { method: "POST" }
-  );
+export const api = {
+  feedingTimes: {
+    list: () => request<FeedingTime[]>("/feeding_times", { cache: "no-store" }),
+    get: (id: string) => request<FeedingTime>(`/feeding_times/${id}`),
+    create: (data: Omit<FeedingTime, "id">) => 
+      request<FeedingTime>("/feeding_times", { method: "POST", body: JSON.stringify(data) }),
+    update: (id: string, data: Partial<FeedingTime>) => 
+      request<FeedingTime>(`/feeding_times/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    delete: (id: string) => request<void>(`/feeding_times/${id}`, { method: "DELETE" }),
+  },
 
-  if (!res.ok) throw new Error("Failed to feed now");
-}
+ 
+  motor: {
+    feed: () => request<void>("/feed_now", { method: "POST" }),
+    status: () => request<{ running: boolean }>("/motor_status", { cache: "no-store" }),
+  },
 
+  lights: {
+    flash: () => request<void>("/flash_lights", { method: "POST" }),
+    status: () => request<{ running: boolean }>("/lights_status", { cache: "no-store" }),
+  },
 
-// Flash lights
-export async function flashLights(): Promise<void> {
-  const res = await fetch(
-    `${getApiBaseUrl()}/flash_lights`,
-    { method: "POST" }
-  );
-  
-  if (!res.ok) throw new Error("Failed to flash lights");
-}
+  logs: {
+    list: () => request<LogEntry[]>("/logs", { cache: "no-store" }),
+  },
+};

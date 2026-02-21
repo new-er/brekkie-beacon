@@ -2,15 +2,17 @@
 import ActionBar from "./components/action_bar/ActionBar";
 import FeedingTimesView from "./components/feeding_times/FeedingTimesView";
 import LogList from "./components/log_messages/LogList";
-import { fetchFeedingTimes, createFeedingTime, updateFeedingTime, deleteFeedingTime, fetchLogEntries, feedNow, flashLights } from "@/lib/api";
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import type { FeedingTime, LogEntry } from "@/lib/types";
 import { setClientApiBaseUrl } from "@/lib/api";
 
 export default function Home() {
-  var [feedingTimes, setFeedingTimes] = useState<FeedingTime[]>([]);
-  var [logEntries, setLogEntries] = useState<LogEntry[]>([]);
+  const [feedingTimes, setFeedingTimes] = useState<FeedingTime[]>([]);
+  const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
   const [apiBaseUrl, setApiBaseUrl] = useState("");
+  const [motorRunning, setMotorRunning] = useState(false);
+  const [lightsFlashing, setLightsFlashing] = useState(false);
 
   useEffect(() => {
     const loadConfig = async () => {
@@ -28,7 +30,7 @@ export default function Home() {
   useEffect(() => {
     async function load() {
       try {
-        var data = await fetchFeedingTimes();
+        var data = await api.feedingTimes.list();
         setFeedingTimes(data);
       } catch (error) {
         console.error("Error fetching feeding times:", error);
@@ -40,7 +42,7 @@ export default function Home() {
   useEffect(() => {
     async function loadLogs() {
       try {
-        var logs = await fetchLogEntries();
+        var logs = await api.logs.list();
         setLogEntries(logs);
       } catch (error) {
         console.error("Error fetching log entries:", error);
@@ -49,30 +51,60 @@ export default function Home() {
     loadLogs();
   }, [apiBaseUrl]);
 
+  useEffect(() => {
+    async function checkMotorStatus() {
+      try {
+        const status = await api.motor.status();
+        setMotorRunning(status.isRunning);
+      } catch (error) {
+        console.error("Error checking motor status:", error);
+      }
+    }
+
+    async function checkLightsStatus() {
+      try {
+        const status = await api.lights.status();
+        setLightsFlashing(status.isRunning);
+      } catch (error) {
+        console.error("Error checking lights status:", error);
+      }
+    }
+
+    checkMotorStatus();
+    checkLightsStatus();
+
+    const interval = setInterval(() => {
+      checkMotorStatus();
+      checkLightsStatus();
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [apiBaseUrl]);
+
   function handleAdd(time: FeedingTime) {
-    createFeedingTime(time);
+    api.feedingTimes.create(time);
     setFeedingTimes([...feedingTimes, time]);
   }
 
   function handleUpdate(updated: FeedingTime) {
-    updateFeedingTime(updated.id, updated);
+    api.feedingTimes.update(updated.id, updated);
     setFeedingTimes(feedingTimes.map(ft => ft.id === updated.id ? updated : ft));
     console.log("Updated feeding time:", updated);
   }
 
   function handleDelete(id: string) {
-    deleteFeedingTime(id);
+    api.feedingTimes.delete(id);
     setFeedingTimes(feedingTimes.filter(ft => ft.id !== id));
     console.log("Deleted feeding time with id:", id);
   }
 
   function handleFeedNow() {
-    feedNow();
+    api.motor.feed();
     console.log("Fed the cat immediately!");
   }
 
   function handleFlashLights() {
-    flashLights();
+    api.lights.flash();
     console.log("Flashed the lights!");
   }
 
@@ -89,7 +121,7 @@ export default function Home() {
         shadow-2xl rounded-3xl 
         border border-zinc-800/40
         sm:items-start">
-      <ActionBar onFeed={handleFeedNow} onFlash={handleFlashLights} />
+      <ActionBar onFeed={handleFeedNow} onFlash={handleFlashLights} isMotorRunning={motorRunning} isLightsFlashing={lightsFlashing} />
       <FeedingTimesView items={feedingTimes} onAdd={handleAdd} onUpdate={handleUpdate} onDelete={handleDelete} />
       <LogList items={logEntries} />
       </main>
