@@ -14,9 +14,7 @@
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
     <ItemGroup>
-      <Reference Include="Serilog">
-        <HintPath>..\..\..\..\.nuget\packages\serilog\4.3.0\lib\net9.0\Serilog.dll</HintPath>
-      </Reference>
+        <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     </ItemGroup>
 
 </Project>
