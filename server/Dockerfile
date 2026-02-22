@@ -3,7 +3,7 @@ WORKDIR /App
 
 COPY . ./
 RUN dotnet restore
-RUN dotnet publish -o out
+RUN dotnet publish BrekkieBeacon.Api/BrekkieBeacon.Api.csproj -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /App
