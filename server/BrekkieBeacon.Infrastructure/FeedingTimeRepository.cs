@@ -3,24 +3,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BrekkieBeacon.Infrastructure;
 
-public class FeedingTimeRepository(AppDbContext db) : IFeedingTimeRepository
+public class FeedingTimeRepository(AppDbContext db, IFeedingTimeEvents events) : IFeedingTimeRepository
 {
-    public event Func<FeedingTime, Task>? Added;
-    public event Func<FeedingTime, Task>? Updated;
-    public event Func<Guid, Task>? Removed;
-
     public async Task AddAsync(FeedingTime feedingTime, CancellationToken ct = default)
     {
         db.FeedingTimes.Add(feedingTime);
         await db.SaveChangesAsync(ct);
-        if (Added is not null) await Added(feedingTime);
+        await events.NotifyAddedAsync(feedingTime);
     }
 
     public async Task UpdateAsync(FeedingTime feedingTime, CancellationToken ct = default)
     {
         db.FeedingTimes.Update(feedingTime);
         await db.SaveChangesAsync(ct);
-        if (Updated is not null) await Updated(feedingTime);
+        await events.NotifyUpdatedAsync(feedingTime);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken ct = default)
@@ -30,7 +26,7 @@ public class FeedingTimeRepository(AppDbContext db) : IFeedingTimeRepository
 
         db.FeedingTimes.Remove(entity);
         await db.SaveChangesAsync(ct);
-        if (Removed is not null) await Removed(id);
+        await events.NotifyRemovedAsync(entity.Id);
     }
     
     public async Task<List<FeedingTime>> GetAllAsync(CancellationToken ct = default)

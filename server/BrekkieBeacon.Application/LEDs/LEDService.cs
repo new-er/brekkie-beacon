@@ -20,17 +20,21 @@ public class LEDService(IHubContext<StatusHub> hubContext)
 
     public bool IsRunning => _cts != null;
 
-    public Task StartDimmedLedCountdown(DateTimeOffset countdownTarget) 
+    public Task StartDimmedLedCountdown(DateTimeOffset countdownTarget, float brightness = 1) 
         => StartFlash((pins, cancellation) => pins.DimmedCountdown(
             LEDInstructions.StartDimmingCountdown / pins.Length, 
             () => countdownTarget - DateTimeOffset.Now, 
+            brightness,
             cancellation));
     
-    public Task StartFlashingLedCountdown() 
-        => StartFlash((pins, cancellation) => pins.FlashAll(cancellation));
+    public Task StartFlashingLedCountdown(float brightness = 1) 
+        => StartFlash((pins, cancellation) => pins.FlashAll(brightness, cancellation));
 
-    public Task StartTestFlash() 
-        => StartFlash((pins, cancellation) => pins.FlashTest(TimeSpan.FromSeconds(0.25), cancellation));
+    public Task StartTestFlash(float brightness = 1) 
+        => StartFlash((pins, cancellation) => pins.FlashTest(
+            TimeSpan.FromSeconds(0.25),
+            brightness,
+            cancellation));
 
     private async Task StartFlash(Func<BrightnessSoftwarePWMOutputPin[], CancellationToken, Task> flashFunc)
     {

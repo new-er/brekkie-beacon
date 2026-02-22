@@ -8,6 +8,7 @@ using Dotcore.GPIO.Pins;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
+using Quartz.Impl.Matchers;
 using Serilog;
 
 var pinMode = Environment.GetEnvironmentVariable("PIN_MODE") ?? "mock";
@@ -42,7 +43,11 @@ builder.Host.UseSerilog();
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddQuartz();
+builder.Services.AddQuartz(q =>
+{
+    q.AddJobListener<QuartzExceptionListener>(GroupMatcher<JobKey>.AnyGroup());
+});
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 builder.Services.AddHealthChecks();
 
 builder.Services.AddDbContext<AppDbContext>(opts =>
@@ -50,8 +55,9 @@ builder.Services.AddDbContext<AppDbContext>(opts =>
 builder.Services.AddDbContext<LogsDbContext>(opts =>
     opts.UseSqlite($"Data Source={logDbPath}"));
 
-builder.Services.AddScoped<IFeedingTimeRepository, FeedingTimeRepository>();
 builder.Services.AddScoped<LogService>();
+builder.Services.AddScoped<IFeedingTimeRepository, FeedingTimeRepository>();
+builder.Services.AddSingleton<IFeedingTimeEvents, FeedingTimeEvents>();
 builder.Services.AddSingleton<SchedulerService>();
 builder.Services.AddSingleton<FeederService>();
 builder.Services.AddSingleton<LEDService>();
@@ -74,13 +80,14 @@ var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 db.Database.Migrate();
 
 var repo = scope.ServiceProvider.GetRequiredService<IFeedingTimeRepository>();
+var repoEvents = scope.ServiceProvider.GetRequiredService<IFeedingTimeEvents>();
 var scheduler = scope.ServiceProvider.GetRequiredService<SchedulerService>();
 var allFeedingTimes = await repo.GetAllAsync();
 await scheduler.InitializeAsync(allFeedingTimes);
 
-repo.Added += scheduler.OnAddedAsync;
-repo.Updated += scheduler.OnUpdatedAsync;
-repo.Removed += scheduler.OnRemovedAsync;
+repoEvents.Added += scheduler.OnAddedAsync;
+repoEvents.Updated += scheduler.OnUpdatedAsync;
+repoEvents.Removed += scheduler.OnRemovedAsync;
 
 if (app.Environment.IsDevelopment())
 {
@@ -97,36 +104,28 @@ app.MapPost("/feeding_times", async (FeedingTime feedingTime, AppDbContext db) =
     await db.SaveChangesAsync();
     return Results.Created($"/feeding_times/{feedingTime.Id}", feedingTime);
 }).WithName("CreateFeedingTime");
-app.MapGet("/feeding_times/{id}", async (Guid id, AppDbContext db) =>
+app.MapGet("/feeding_times/{id}", async (Guid id, IFeedingTimeRepository repo) =>
 {
-    var item = await db.FeedingTimes.FindAsync(id);
+    var item = await repo.GetByIdAsync(id);
     return item is not null ? Results.Ok(item) : Results.NotFound();
 }).WithName("GetFeedingTimeById");
-app.MapPut("/feeding_times/{id}", async (Guid id, FeedingTime updated, AppDbContext db) =>
+app.MapPut("/feeding_times/{id}", async (Guid id, FeedingTime updated, IFeedingTimeRepository repo) =>
 {
     var existing = await db.FeedingTimes.FindAsync(id);
     if (existing is null) return Results.NotFound();
-    existing.Id = updated.Id;
-    existing.Name = updated.Name;
-    existing.Time = updated.Time;
-    existing.MotorInstructions = updated.MotorInstructions;
-    existing.LEDInstructions = updated.LEDInstructions;
-    await db.SaveChangesAsync();
+    await repo.UpdateAsync(updated);
     return Results.Ok(existing);
 }).WithName("UpdateFeedingTime");
-app.MapDelete("/feeding_times/{id}", async (Guid id, AppDbContext db) =>
+app.MapDelete("/feeding_times/{id}", async (Guid id, IFeedingTimeRepository repo) =>
 {
     var item = await db.FeedingTimes.FindAsync(id);
     if (item is null) return Results.NotFound();
-
-    db.FeedingTimes.Remove(item);
-    await db.SaveChangesAsync();
+    await repo.DeleteAsync(item.Id);
     return Results.NoContent();
 }).WithName("DeleteFeedingTime");
-app.MapGet("/feeding_times", async (AppDbContext db) =>
+app.MapGet("/feeding_times", async (IFeedingTimeRepository repo) =>
 {
-    var times = await db.FeedingTimes.ToListAsync();
-    return times;
+    return await repo.GetAllAsync();
 }).WithName("GetFeedingTimes");
 
 app.MapPost("/feed_now", (FeederService feederService) =>
