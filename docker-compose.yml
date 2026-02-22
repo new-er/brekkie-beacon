@@ -1,6 +1,6 @@
 services:
   # Production server for actual use with GPIO access on Pi
-  server:
+  server-prod:
     image: ghcr.io/new-er/brekkie-beacon/brekkie-beacon-server:latest
     platform: linux/arm64
     profiles: [prod]
@@ -24,7 +24,7 @@ services:
       start_period: 10s
 
   # Mock server for development and testing
-  server:
+  server-mock:
     image: ghcr.io/new-er/brekkie-beacon/brekkie-beacon-server:latest
     restart: always
     profiles: [mock]
@@ -43,6 +43,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
 
   client-app:
     image: ghcr.io/new-er/brekkie-beacon/brekkie-beacon-client:latest

@@ -51,8 +51,8 @@ builder.Services.AddDbContext<LogsDbContext>(opts =>
     opts.UseSqlite($"Data Source={logDbPath}"));
 
 builder.Services.AddScoped<IFeedingTimeRepository, FeedingTimeRepository>();
-builder.Services.AddScoped<SchedulerService>();
 builder.Services.AddScoped<LogService>();
+builder.Services.AddSingleton<SchedulerService>();
 builder.Services.AddSingleton<FeederService>();
 builder.Services.AddSingleton<LEDService>();
 

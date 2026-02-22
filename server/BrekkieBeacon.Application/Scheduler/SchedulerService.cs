@@ -7,13 +7,11 @@ using Quartz.Impl;
 
 namespace BrekkieBeacon.Application;
 
-public class SchedulerService(ILogger<SchedulerService> _logger)
+public class SchedulerService(ISchedulerFactory schedulerFactory, ILogger<SchedulerService> _logger)
 {
-    private readonly ISchedulerFactory _schedulerFactory = new StdSchedulerFactory();
-
     public async Task InitializeAsync(IEnumerable<FeedingTime> allFeedingTimes)
     {
-        var scheduler = await _schedulerFactory.GetScheduler();
+        var scheduler = await schedulerFactory.GetScheduler();
         foreach (var ft in allFeedingTimes)
         {
             await ScheduleJobsAsync(scheduler, ft);
@@ -23,17 +21,17 @@ public class SchedulerService(ILogger<SchedulerService> _logger)
     }
     
     public async Task OnAddedAsync(FeedingTime ft) =>
-        await ScheduleJobsAsync(await _schedulerFactory.GetScheduler(), ft);
+        await ScheduleJobsAsync(await schedulerFactory.GetScheduler(), ft);
 
     public async Task OnUpdatedAsync(FeedingTime ft)
     {
-        var scheduler = await _schedulerFactory.GetScheduler();
+        var scheduler = await schedulerFactory.GetScheduler();
         await scheduler.DeleteJob(new JobKey(ft.Id.ToString()));
         await ScheduleJobsAsync(scheduler, ft);
     }
 
     public async Task OnRemovedAsync(Guid id) =>
-        await (await _schedulerFactory.GetScheduler()).DeleteJob(new JobKey(id.ToString()));
+        await (await schedulerFactory.GetScheduler()).DeleteJob(new JobKey(id.ToString()));
     
     private static async Task ScheduleJobsAsync(IScheduler scheduler, FeedingTime ft)
     {
