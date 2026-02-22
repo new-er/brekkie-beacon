@@ -20,7 +20,7 @@ const ActionBar: React.FC<ActionBarProps> = ({ onFeed, onStopFeed, onFlash,onSto
         } text-white`}
         onClick={isMotorRunning ? onStopFeed : onFeed}
       >
-        {isMotorRunning ? "Stop Feeding 🛑" : "Feed Now 🍽️"}
+        {isMotorRunning ? "Suspend Serving 🛑" : "Serve Snack 🍽️"}
       </button>
 
       <button
@@ -31,7 +31,7 @@ const ActionBar: React.FC<ActionBarProps> = ({ onFeed, onStopFeed, onFlash,onSto
         } text-white`}
         onClick={isLightsFlashing ? onStopFlash : onFlash}
       >
-        {isLightsFlashing ? "Stop Lights ⏹️" : "Flash Lights 💡"}
+        {isLightsFlashing ? "Stop Shine ⏹️" : "Shine Signal 💡"}
       </button>
     </div>
   );

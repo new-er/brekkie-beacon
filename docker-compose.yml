@@ -1,10 +1,48 @@
 services:
+  # Production server for actual use with GPIO access on Pi
+  server:
+    image: ghcr.io/new-er/brekkie-beacon/brekkie-beacon-server:latest
+    platform: linux/arm64
+    profiles: [prod]
+    restart: always
+    pull_policy: always
+    environment:
+      - PIN_MODE=prod
+      - ALLOWED_ORIGINS=http://localhost:80
+      - DATABASE_PATH=/data
+    devices:
+      - /dev/gpiomem:/dev/gpiomem
+    volumes:
+      - ./beacondata:/data
+    ports:
+      - "5098:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Mock server for development and testing
   server:
     image: ghcr.io/new-er/brekkie-beacon/brekkie-beacon-server:latest
     restart: always
+    profiles: [mock]
     pull_policy: always
+    environment:
+      - PIN_MODE=mock
+      - ALLOWED_ORIGINS=http://localhost:3000
+      - DATABASE_PATH=/data
+    volumes:
+      - ./beacondata-mock:/data
     ports:
       - "5098:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   client-app:
     image: ghcr.io/new-er/brekkie-beacon/brekkie-beacon-client:latest

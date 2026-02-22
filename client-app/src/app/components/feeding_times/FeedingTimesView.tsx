@@ -40,7 +40,7 @@ export default function FeedingTimesView({
   return (
     <div className="w-full bg-gray-900 p-3 rounded-md shadow-md space-y-4">
      <div className="text-center font-semibold mb-2 border-b border-gray-700 pb-1">
-        Scheduled Feedings
+        🥣 Culinary Calendar 
       </div>
 
       <div className="flex gap-2 items-center">

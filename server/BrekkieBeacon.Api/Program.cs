@@ -10,17 +10,25 @@ using Microsoft.EntityFrameworkCore;
 using Quartz;
 using Serilog;
 
-var pinMode = Environment.GetEnvironmentVariable("PIN_MODE") ?? "Mock";
-if (pinMode.Equals("Production", StringComparison.OrdinalIgnoreCase)) InitializePinFactory.Production();
+var pinMode = Environment.GetEnvironmentVariable("PIN_MODE") ?? "mock";
+if (pinMode.Equals("prod", StringComparison.OrdinalIgnoreCase)) InitializePinFactory.Production();
 else InitializePinFactory.Mock();
 
 var builder = WebApplication.CreateBuilder(args);
+var dbFolder = builder.Configuration["DATABASE_PATH"] ?? Directory.GetCurrentDirectory();
+if (!Directory.Exists(dbFolder)) Directory.CreateDirectory(dbFolder);
+var dataFolder = Path.Combine(dbFolder, "data");
+if (!Directory.Exists(dataFolder)) Directory.CreateDirectory(dataFolder);
+var logDbPath = Path.Combine(dataFolder, "logs.db");
+var appDbPath = Path.Combine(dataFolder, "app.db");
+
 builder.Services.AddCors(options =>
 {
+    var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',') ?? Array.Empty<string>();
     options.AddPolicy("FrontendPolicy", policy =>
     {
         policy
-            .WithOrigins("http://localhost:3000", "http://brekkies.local")
+            .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -28,18 +36,19 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddSignalR();
 
-var fullLogDbPath = Path.Combine(Directory.GetCurrentDirectory(), "logs.db");
+
 builder.Host.UseSerilog();
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddQuartz();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddDbContext<AppDbContext>(opts =>
-    opts.UseSqlite("Data Source=app.db"));
+    opts.UseSqlite($"Data Source={appDbPath}"));
 builder.Services.AddDbContext<LogsDbContext>(opts =>
-    opts.UseSqlite($"Data Source={fullLogDbPath}"));
+    opts.UseSqlite($"Data Source={logDbPath}"));
 
 builder.Services.AddScoped<IFeedingTimeRepository, FeedingTimeRepository>();
 builder.Services.AddScoped<SchedulerService>();
@@ -51,12 +60,13 @@ var app = builder.Build();
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .WriteTo.Sink(new SignalRSink(app.Services))
-    .WriteTo.SQLite(sqliteDbPath: fullLogDbPath, tableName: "Logs", retentionPeriod: TimeSpan.FromDays(7))
+    .WriteTo.SQLite(sqliteDbPath: logDbPath, tableName: "Logs", retentionPeriod: TimeSpan.FromDays(7))
     .WriteTo.Console()
     .CreateLogger();
 
 app.UseCors("FrontendPolicy");
 app.UseSerilogRequestLogging();
+app.MapHealthChecks("/health");
 app.MapHub<StatusHub>("/statusHub");
 
 using var scope = app.Services.CreateScope();
@@ -71,16 +81,6 @@ await scheduler.InitializeAsync(allFeedingTimes);
 repo.Added += scheduler.OnAddedAsync;
 repo.Updated += scheduler.OnUpdatedAsync;
 repo.Removed += scheduler.OnRemovedAsync;
-
-if (!await db.FeedingTimes.AnyAsync())
-{
-    db.FeedingTimes.AddRange(
-        new FeedingTime { Id = Guid.NewGuid(), Name = "Morning", Time = new TimeOnly(8, 0) },
-        new FeedingTime { Id = Guid.NewGuid(), Name = "Evening", Time = new TimeOnly(18, 0) }
-    );
-
-    await db.SaveChangesAsync();
-}
 
 if (app.Environment.IsDevelopment())
 {

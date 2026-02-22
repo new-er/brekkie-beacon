@@ -19,7 +19,7 @@ export default function LogList({ items = [] }: Props) {
         aria-expanded={isExpanded}
         aria-controls="log-content"
       >
-        <span>Activity Log ({items.length})</span>
+        <span>Culinary Chronicles ({items.length})</span>
         {isExpanded ? (
           <p className="h-5 w-5 text-gray-400" >-</p>
         ) : (
