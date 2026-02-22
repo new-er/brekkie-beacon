@@ -104,6 +104,13 @@ public class SchedulerService(ISchedulerFactory schedulerFactory, ILogger<Schedu
         await scheduler.ScheduleJob(dimmedLedJob, dimmedLedTrigger);
         await scheduler.ScheduleJob(flashingLedJob, flashingLedTrigger);
         await scheduler.ScheduleJob(stopLedJob, stopLedTrigger);
+        
+        var nextFireUtc = feedTrigger.GetNextFireTimeUtc();
+        if (nextFireUtc.HasValue)
+        {
+            var timeUntil = nextFireUtc.Value - DateTimeOffset.UtcNow;
+            _logger.LogInformationVisibleForClient($"Feeding {ft.Name} starts in: {timeUntil.Hours}h {timeUntil.Minutes}m {timeUntil.Seconds}s (at {nextFireUtc}, current {DateTimeOffset.UtcNow}");
+        }
     }
     
     
