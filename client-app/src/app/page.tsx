@@ -114,19 +114,8 @@ export default function Home() {
   }
 
   return (
-    <div className="
-      flex min-h-screen items-center justify-center 
-      bg-brand-bg
-      bg-gradient-to-br from-brand-bg to-black
-      font-sans">
-      <main className="
-        flex w-full max-w-4xl w-11/12 flex-col items-center justify-between gap-y-6
-        py-32 px-16 
-        bg-brand-bg-light
-        backdrop-blur-xl
-        shadow-2xl rounded-3xl 
-        border border-zinc-800/40
-        sm:items-start">
+    <div className="flex min-h-screen items-center justify-center bg-brand-bg bg-gradient-to-br from-brand-bg to-black font-sans">
+      <main className="flex w-full max-w-4xl flex-col items-center justify-between gap-y-6 py-32 px-16 bg-brand-bg-light backdrop-blur-xl shadow-2xl rounded-3xl border border-zinc-800/40 sm:items-start">
         <PetHeader />
         <ActionBar
           onFeed={handleFeedNow}
