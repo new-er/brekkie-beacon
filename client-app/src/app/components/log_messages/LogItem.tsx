@@ -10,7 +10,7 @@ export default function LogItem({ message }: Props) {
 
 const levelStyles: Record<string, { dot: string; icon: React.ReactNode; text: string }> = {
   information: {
-    dot: "bg-indigo-400",
+    dot: " bg-indigo-400",
     icon: <FaInfoCircle className="text-indigo-300" size={16} />,
     text: "text-indigo-200",
   },
@@ -28,19 +28,26 @@ const levelStyles: Record<string, { dot: string; icon: React.ReactNode; text: st
 
   const style = levelStyles[message.level] || levelStyles.information;
 
-  return (
-  <li className="flex items-start gap-x-4 p-4 rounded-lg bg-gray-800 text-gray-100 shadow-md hover:shadow-lg transition-shadow duration-150">
-      <div className="flex items-center gap-x-3 flex-1">
-        <div className="mt-0.5">{style.icon}</div>
-        <div className="flex flex-col space-y-1 flex-1">
-          <div className="flex items-center gap-x-3 text-xs text-gray-400">
-            <span>Time:</span>
-            <span className="font-medium text-gray-200">{message.timeStamp}</span>
-          </div>
-          <p className={`text-sm ${style.text}`}>
-            {message.renderedMessage}
-          </p>
-        </div>
+return (
+    <li className="flex items-start gap-x-4 p-4 rounded-xl bg-brand-card/80 border border-white/5 hover:border-brand-primary/20 transition-all group">
+      <div className={`mt-1 p-2 rounded-lg bg-brand-bg border border-white/5 ${style.text} shadow-inner`}>
+        {style.icon}
       </div>
-    </li>  );}
-    
+      
+      <div className="flex flex-col space-y-1.5 flex-1">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-x-2">
+            <span className="text-[10px] uppercase tracking-tighter text-brand-muted font-bold">Timestamp</span>
+            <span className="font-mono text-[10px] text-brand-primary/70 bg-brand-primary/5 px-2 py-0.5 rounded border border-brand-primary/10">
+              {message.timeStamp}
+            </span>
+          </div>
+        </div>
+        
+        <p className={`text-sm leading-relaxed ${style.text} opacity-90`}>
+          {message.renderedMessage}
+        </p>
+      </div>
+    </li>
+  );    
+}

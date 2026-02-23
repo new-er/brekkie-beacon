@@ -1,7 +1,7 @@
 "use client";
 
 import type { FeedingTime } from "@/lib/types";
-import { default as FeedingTimeItem } from "./FeedingTimeItem";
+import FeedingTimeItem from "./CulinaryCalendarItem";
 
 type Props = {
   items: FeedingTime[];
@@ -9,7 +9,7 @@ type Props = {
   onDelete: (id: string) => void;
 };
 
-export default function FeedingTimeList({ items = [], onUpdate, onDelete }: Props) {
+export default function CulinaryCalendarList({ items = [], onUpdate, onDelete }: Props) {
   return (
     <ul className="feeding-time-list space-y-4">
       {items.map(item => (
