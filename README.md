@@ -3,7 +3,6 @@
 **Brekkie Beacon** is an IoT-based automatic pet feeding solution. By retrofitting a standard manual cereal dispenser with a stepper motor and a Raspberry Pi, this system provides a robust, web-controlled way to manage your pet's meals. 
 The software utilizes a modern stack to ensure real-time communication and reliable scheduling, all manageable from any device on your local network.
 
----
 
 ## 🌟 Key Features
 * **Flexible Scheduling:** Fully configurable feeding schedules managed via the web dashboard. 
@@ -11,7 +10,6 @@ The software utilizes a modern stack to ensure real-time communication and relia
 * **Web Dashboard:** A responsive Next.js frontend communicating with an ASP.NET backend.
 * **Dockerized Deployment:** Simple one-command setup using Docker Compose.
 
----
 
 ## 🛠️ System Architecture
 
@@ -20,8 +18,6 @@ The software utilizes a modern stack to ensure real-time communication and relia
 * **Scheduler:** Quartz.NET for reliable cron-based feeding cycles.
 * **Real-Time:** SignalR for instant hardware-to-UI communication.
 * **Infrastructure:** Multi-container Docker environment.
-
----
 
 ## 🔌 Hardware Setup
 
@@ -58,8 +54,6 @@ The software utilizes a modern stack to ensure real-time communication and relia
 | LED 3 | GPIO 16 | Pin 36 |
 | LED 4 | GPIO 12 | Pin 32 |
 
----
-
 ## 🚀 Software Installation
 
 ### 1. Prerequisite
@@ -72,8 +66,6 @@ Clone the repository and run the production profile:
 git clone http://github.com/new-er/brekkie-beacon.git
 docker compose --profile prod up -d
 ```
----
-
 ## 3. Usage
 
 Once the containers are running, access the web interface at the IP address of your Raspberry Pi.
@@ -81,6 +73,7 @@ Within the dashboard, you can:
 - Feeding Times: The application defaults to four daily auto-feeding times, which can be modified directly in the UI.
 - Manual Trigger: Use the dashboard to dispense food manually or test the LED indicators.
 - View Logs: Check the backend logs for real-time feedback on motor actions and schedule executions.
+
 ---
 
 <p align="center"><i>"Kibble in the bin, Docker for the win—let the stepper motor spin."</i></p>
