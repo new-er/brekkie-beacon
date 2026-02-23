@@ -15,7 +15,7 @@ var pinMode = Environment.GetEnvironmentVariable("PIN_MODE") ?? "mock";
 if (pinMode.Equals("prod", StringComparison.OrdinalIgnoreCase)) InitializePinFactory.Production();
 else InitializePinFactory.Mock();
 
-var timezoneString = Environment.GetEnvironmentVariable("timezone") ?? "Europe/Amsterdam";
+var timezoneString = Environment.GetEnvironmentVariable("TIMEZONE") ?? "Europe/Amsterdam";
 var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timezoneString);
 
 var builder = WebApplication.CreateBuilder(args);

@@ -10,6 +10,7 @@ services:
       - PIN_MODE=prod
       - ALLOWED_ORIGINS=http://localhost:80
       - DATABASE_PATH=/data
+      - T
     devices:
       - /dev/gpiomem:/dev/gpiomem
     volumes:
