@@ -33,7 +33,7 @@ export default function Home() {
   useEffect(() => {
     async function load() {
       try {
-        var data = await api.feedingTimes.list();
+        const data = await api.feedingTimes.list();
         setFeedingTimes(data);
       } catch (error) {
         console.error("Error fetching feeding times:", error);
@@ -45,7 +45,7 @@ export default function Home() {
   useEffect(() => {
     async function loadLogs() {
       try {
-        var logs = await api.logs.list();
+        const logs = await api.logs.list();
         setLogEntries(logs);
       } catch (error) {
         console.error("Error fetching log entries:", error);
@@ -56,7 +56,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!apiBaseUrl) return;
-    
+
     const loadInitialData = async () => {
       try {
         const [times, logs, motor, lights] = await Promise.all([
@@ -127,16 +127,16 @@ export default function Home() {
         shadow-2xl rounded-3xl 
         border border-zinc-800/40
         sm:items-start">
-      <PetHeader />
-      <ActionBar 
-        onFeed={handleFeedNow} 
-        onFlash={handleFlashLights} 
-        onStopFeed={handleStopFeed} 
-        onStopFlash={handleStopLights}
-        isMotorRunning={motorRunning} 
-        isLightsFlashing={lightsFlashing} />
-      <FeedingTimesView items={feedingTimes} onAdd={handleAdd} onUpdate={handleUpdate} onDelete={handleDelete} />
-      <LogList items={logEntries} />
+        <PetHeader />
+        <ActionBar
+          onFeed={handleFeedNow}
+          onFlash={handleFlashLights}
+          onStopFeed={handleStopFeed}
+          onStopFlash={handleStopLights}
+          isMotorRunning={motorRunning}
+          isLightsFlashing={lightsFlashing} />
+        <FeedingTimesView items={feedingTimes} onAdd={handleAdd} onUpdate={handleUpdate} onDelete={handleDelete} />
+        <LogList items={logEntries} />
       </main>
     </div>
   );

@@ -12,7 +12,7 @@ const getBaseUrl = () => {
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${getBaseUrl()}${path}`;
-  
+
   const headers = {
     'Content-Type': 'application/json',
     ...options?.headers,
@@ -36,14 +36,14 @@ export const api = {
   feedingTimes: {
     list: () => request<FeedingTime[]>("/feeding_times", { cache: "no-store" }),
     get: (id: string) => request<FeedingTime>(`/feeding_times/${id}`),
-    create: (data: Omit<FeedingTime, "id">) => 
+    create: (data: Omit<FeedingTime, "id">) =>
       request<FeedingTime>("/feeding_times", { method: "POST", body: JSON.stringify(data) }),
-    update: (id: string, data: Partial<FeedingTime>) => 
+    update: (id: string, data: Partial<FeedingTime>) =>
       request<FeedingTime>(`/feeding_times/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     delete: (id: string) => request<void>(`/feeding_times/${id}`, { method: "DELETE" }),
   },
 
- 
+
   motor: {
     feed: () => request<void>("/feed_now", { method: "POST" }),
     stop: () => request<void>("/stop_feed", { method: "POST" }),

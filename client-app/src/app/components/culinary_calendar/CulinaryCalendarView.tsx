@@ -40,7 +40,7 @@ export default function CulinaryCalendarView({
 
   return (
     <div className="w-full bg-brand-surface/60 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-white/5 space-y-6">
-      
+
       <div className="flex items-center gap-3 pb-2 border-b border-white/5">
         <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
           <FaCalendarAlt />

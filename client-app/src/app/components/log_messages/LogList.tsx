@@ -27,16 +27,15 @@ export default function LogList({ items = [] }: Props) {
             Culinary Chronicles <span className="text-xs opacity-50 ml-1">({items.length})</span>
           </span>
         </div>
-        
+
         <div className="text-brand-muted group-hover:text-brand-primary transition-colors">
           {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
         </div>
       </button>
 
       <div
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isExpanded ? 'max-h-[500px] opacity-100 mt-6' : 'max-h-0 opacity-0'
-        }`}
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[500px] opacity-100 mt-6' : 'max-h-0 opacity-0'
+          }`}
       >
         {items.length === 0 ? (
           <div className="text-center text-brand-muted py-8 text-sm italic opacity-50">

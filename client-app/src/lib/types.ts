@@ -1,30 +1,28 @@
-
-
 export type FeedingTime = {
   id: string;
-  name : string;
+  name: string;
   time: string;
 
-  motorInstructions : MotorInstructions;
-  ledInstructions : LEDInstructions;
+  motorInstructions: MotorInstructions;
+  ledInstructions: LEDInstructions;
 };
 
 export type MotorInstructions = {
-  steps : number;
-  waitBetweenSteps : string;
-  negateDirection : boolean;
+  steps: number;
+  waitBetweenSteps: string;
+  negateDirection: boolean;
 }
 
 export type LEDInstructions = {
-  brightness : number;
+  brightness: number;
 }
 
 
 export type LogEntry = {
   id: number;
   timeStamp: string;
-  level : string;
+  level: string;
   renderedMessage: string;
-  properties : string;
+  properties: string;
 };
 
