@@ -7,6 +7,9 @@
 **Brekkie Beacon** is an IoT-based automatic pet feeding solution. By retrofitting a standard manual cereal dispenser with a stepper motor and a Raspberry Pi, this system provides a robust, web-controlled way to manage your pet's meals. 
 The software utilizes a modern stack to ensure real-time communication and reliable scheduling, all manageable from any device on your local network.
 
+<p align="center">
+  <img src="media/website-screenshot.png" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+</p>
 
 ## 🌟 Key Features
 * **Flexible Scheduling:** Fully configurable feeding schedules managed via the web dashboard. 
@@ -72,9 +75,6 @@ docker compose --profile prod up -d
 ```
 ## 3. Usage
 
-<p align="center">
-  <img src="media/website-screenshot.png" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-</p>
 
 Once the containers are running, access the web interface at the IP address of your Raspberry Pi.
 Within the dashboard, you can:
