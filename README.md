@@ -1,4 +1,6 @@
-![My Pets](./pets.svg)
+<p align="center">
+  <img src="pets.svg" width="600" alt="Brekkie Beacon Banner">
+</p>
 
 # 🥣 Brekkie Beacon: Automatic DIY Pet Feeder
 

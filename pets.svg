@@ -20,8 +20,6 @@
     }
   </style>
 
-  <rect width="600" height="300" fill="#0F111A"/>
-  
   <defs>
     <radialGradient id="cardGlow" cx="50" cy="50" r="50" gradientUnits="userSpaceOnUse">
       <stop stop-color="#22D3EE" stop-opacity="0.2"/>
