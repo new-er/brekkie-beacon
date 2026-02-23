@@ -10,7 +10,7 @@ services:
       - PIN_MODE=prod
       - ALLOWED_ORIGINS=http://localhost:80
       - DATABASE_PATH=/data
-      - T
+      - TIMEZONE=Europe/Amsterdam
     devices:
       - /dev/gpiomem:/dev/gpiomem
     volumes:
@@ -34,6 +34,7 @@ services:
       - PIN_MODE=mock
       - ALLOWED_ORIGINS=http://localhost:3000
       - DATABASE_PATH=/data
+      - TIMEZONE=Europe/Amsterdam
     volumes:
       - ./beacondata-mock:/data
     ports:
