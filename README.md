@@ -72,6 +72,10 @@ docker compose --profile prod up -d
 ```
 ## 3. Usage
 
+<p align="center">
+  <img src="media/website-screenshot.png" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+</p>
+
 Once the containers are running, access the web interface at the IP address of your Raspberry Pi.
 Within the dashboard, you can:
 - Feeding Times: The application defaults to four daily auto-feeding times, which can be modified directly in the UI.
