@@ -13,12 +13,10 @@ const PetHeader = () => {
         <span className="flex-1 h-px bg-brand-accent/30 max-w-[40px] sm:max-w-[60px]"></span>
       </h2>
 
-      {/* Pets Grid */}
       <div className="flex flex-wrap justify-center gap-3 sm:gap-6">
         {pets.map((pet, index) => (
           <div
             key={index}
-            suppressHydrationWarning={true}
             className="relative group flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 text-2xl sm:text-3xl bg-brand-card/50 backdrop-blur-md border border-brand-accent/20 rounded-xl sm:rounded-2xl shadow-xl cursor-pointer transition-all duration-300 hover:border-brand-primary hover:scale-110 hover:-translate-y-2 animate-float"
             style={{ animationDelay: `${index * 0.2}s` }}
           >
