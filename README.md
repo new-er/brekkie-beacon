@@ -1,3 +1,5 @@
+![My Pets](./pets.svg)
+
 # 🥣 Brekkie Beacon: Automatic DIY Pet Feeder
 
 **Brekkie Beacon** is an IoT-based automatic pet feeding solution. By retrofitting a standard manual cereal dispenser with a stepper motor and a Raspberry Pi, this system provides a robust, web-controlled way to manage your pet's meals. 
