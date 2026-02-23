@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="pets.svg" width="600" alt="Brekkie Beacon Banner">
+  <img src="media/banner.svg" width="600" alt="Brekkie Beacon Banner">
 </p>
 
 # 🥣 Brekkie Beacon: Automatic DIY Pet Feeder
