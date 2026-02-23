@@ -15,6 +15,9 @@ var pinMode = Environment.GetEnvironmentVariable("PIN_MODE") ?? "mock";
 if (pinMode.Equals("prod", StringComparison.OrdinalIgnoreCase)) InitializePinFactory.Production();
 else InitializePinFactory.Mock();
 
+var timezoneString = Environment.GetEnvironmentVariable("timezone") ?? "Europe/Amsterdam";
+var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timezoneString);
+
 var builder = WebApplication.CreateBuilder(args);
 var dbFolder = builder.Configuration["DATABASE_PATH"] ?? Directory.GetCurrentDirectory();
 if (!Directory.Exists(dbFolder)) Directory.CreateDirectory(dbFolder);
@@ -22,6 +25,8 @@ var dataFolder = Path.Combine(dbFolder, "data");
 if (!Directory.Exists(dataFolder)) Directory.CreateDirectory(dataFolder);
 var logDbPath = Path.Combine(dataFolder, "logs.db");
 var appDbPath = Path.Combine(dataFolder, "app.db");
+
+builder.Services.AddSingleton(userTimeZone);
 
 builder.Services.AddCors(options =>
 {

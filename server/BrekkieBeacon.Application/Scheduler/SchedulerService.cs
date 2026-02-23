@@ -9,7 +9,7 @@ using Quartz.Impl;
 
 namespace BrekkieBeacon.Application;
 
-public class SchedulerService(ISchedulerFactory schedulerFactory, ILogger<SchedulerService> _logger)
+public class SchedulerService(TimeZoneInfo timeZoneInfo, ISchedulerFactory schedulerFactory, ILogger<SchedulerService> _logger)
 {
     public async Task InitializeAsync(IEnumerable<FeedingTime> allFeedingTimes)
     {
@@ -59,7 +59,9 @@ public class SchedulerService(ISchedulerFactory schedulerFactory, ILogger<Schedu
         var feedTrigger = TriggerBuilder
             .Create()
             .WithIdentity(MotorJobId(ft.Id))
-            .DailyAt(ft.Time)
+            .WithSchedule(CronScheduleBuilder
+                .CronSchedule(BuildCronExpression(ft.Time))
+                .InTimeZone(timeZoneInfo))
             .Build();
         var feedJob = JobBuilder
             .Create<FeedJob>()
@@ -70,7 +72,9 @@ public class SchedulerService(ISchedulerFactory schedulerFactory, ILogger<Schedu
         var dimmedLedTrigger = TriggerBuilder
             .Create()
             .WithIdentity(DimmedLedJobId(ft.Id))
-            .DailyAt(ft.Time.Add(-TimeSpan.FromHours(1)))
+            .WithSchedule(CronScheduleBuilder
+                .CronSchedule(BuildCronExpression(ft.Time, -TimeSpan.FromHours(1)))
+                .InTimeZone(timeZoneInfo))
             .Build();
         var dimmedLedJob = JobBuilder.Create<StartDimmedLedCountdownJob>()
             .WithIdentity(DimmedLedJobId(ft.Id))
@@ -81,7 +85,9 @@ public class SchedulerService(ISchedulerFactory schedulerFactory, ILogger<Schedu
         var flashingLedTrigger = TriggerBuilder
             .Create()
             .WithIdentity(FlashingLedJobId(ft.Id))
-            .DailyAt(ft.Time.Add(-TimeSpan.FromSeconds(15)))
+            .WithSchedule(CronScheduleBuilder
+                .CronSchedule(BuildCronExpression(ft.Time, -TimeSpan.FromSeconds(15)))
+                .InTimeZone(timeZoneInfo))
             .Build();
         var flashingLedJob = JobBuilder
             .Create<StartFlashingLedCountdownJob>()
@@ -92,7 +98,9 @@ public class SchedulerService(ISchedulerFactory schedulerFactory, ILogger<Schedu
         var stopLedTrigger = TriggerBuilder
             .Create()
             .WithIdentity(StopLedJobId(ft.Id))
-            .DailyAt(ft.Time.Add(TimeSpan.FromSeconds(15)))
+            .WithSchedule(CronScheduleBuilder
+                .CronSchedule(BuildCronExpression(ft.Time, TimeSpan.FromSeconds(15)))
+                .InTimeZone(timeZoneInfo))
             .Build();
         var stopLedJob = JobBuilder
             .Create<StopFlashingJob>()
@@ -109,7 +117,7 @@ public class SchedulerService(ISchedulerFactory schedulerFactory, ILogger<Schedu
         if (nextFireUtc.HasValue)
         {
             var timeUntil = nextFireUtc.Value - DateTimeOffset.UtcNow;
-            _logger.LogInformationVisibleForClient($"Feeding {ft.Name} starts in: {timeUntil.Hours}h {timeUntil.Minutes}m {timeUntil.Seconds}s (at {nextFireUtc}, current {DateTimeOffset.UtcNow}");
+            _logger.LogInformationVisibleForClient($"Feeding {ft.Name} starts in: {timeUntil.Hours}h {timeUntil.Minutes}m {timeUntil.Seconds}s (at {nextFireUtc}, current utc {DateTimeOffset.UtcNow}");
         }
     }
     
@@ -118,4 +126,23 @@ public class SchedulerService(ISchedulerFactory schedulerFactory, ILogger<Schedu
     private static string DimmedLedJobId(Guid id) => $"{id}_dimmed_led";
     private static string FlashingLedJobId(Guid id) => $"{id}_flashing";
     private static string StopLedJobId(Guid id) => $"{id}_stop_led";
+    
+    private static DateTimeOffset GetNextUtcOccurrence(TimeOnly time, TimeZoneInfo tz)
+    {
+        var localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+        var localOccurrence = localNow.Date.Add(time.ToTimeSpan());
+
+        if (localOccurrence < localNow)
+        {
+            localOccurrence = localOccurrence.AddDays(1);
+        }
+        return new DateTimeOffset(localOccurrence, tz.GetUtcOffset(localOccurrence));
+    }
+
+
+    private string BuildCronExpression(TimeOnly baseTime, TimeSpan? offset = null)
+    {
+        var adjustedTime = baseTime.Add(offset ?? TimeSpan.Zero);
+        return $"{adjustedTime.Second} {adjustedTime.Minute} {adjustedTime.Hour} * * ?";
+    }
 }
