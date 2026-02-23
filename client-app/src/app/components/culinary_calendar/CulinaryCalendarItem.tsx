@@ -167,7 +167,12 @@ export default function CulinaryCalendarItem({
   );
 }
 
-function Stat({ icon, label, value }) {
+interface StatProps {
+  icon: string | React.ReactNode;
+  label: string;
+  value: string | number;
+}
+function Stat({ icon, label, value } : StatProps) {
   return (
     <div className="flex items-center gap-2 text-brand-muted text-sm whitespace-nowrap">
       <span className="opacity-50">{icon}</span>
