@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FaTrash, FaEdit, FaCheck, FaTimes } from "react-icons/fa";
+import { FaTrash, FaEdit, FaCheck, FaTimes, FaPowerOff } from "react-icons/fa";
 import type { FeedingTime } from "@/lib/types";
 
 type Props = {
@@ -22,12 +22,14 @@ export default function CulinaryCalendarItem({
   const [editWait, setEditWait] = useState(feedingTime.motorInstructions.waitBetweenSteps);
   const [editNegate, setEditNegate] = useState(feedingTime.motorInstructions.negateDirection);
   const [editBrightness, setEditBrightness] = useState(feedingTime.ledInstructions.brightness);
+  const [editIsEnabled, setEditIsEnabled] = useState(feedingTime.isEnabled);
 
   function handleSave() {
     onUpdate({
       ...feedingTime,
       name: editName,
       time: editTime,
+      isEnabled: editIsEnabled,
       motorInstructions: {
         steps: editSteps,
         waitBetweenSteps: editWait,
@@ -49,12 +51,24 @@ export default function CulinaryCalendarItem({
     setEditBrightness(feedingTime.ledInstructions.brightness);
     setIsEditing(false);
   }
+  function handleToggle() {
+    onUpdate({ ...feedingTime, isEnabled: !feedingTime.isEnabled });
+  }
   return (
     <li className="relative flex flex-col sm:flex-row items-start justify-between gap-y-4 sm:gap-x-6 p-5 rounded-2xl bg-brand-card/50 border border-white/5 hover:border-brand-primary/20 transition-all duration-300 group">
 
       <div className="flex-1 w-full space-y-4">
         {isEditing ? (
           <div className="grid grid-cols-1 gap-y-4">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-brand-bg border border-white/5">
+              <span className="text-brand-muted text-[10px] uppercase tracking-widest font-bold">Mission Active</span>
+              <button
+                onClick={() => setEditIsEnabled(!editIsEnabled)}
+                className={`w-12 h-6 rounded-full relative transition-colors duration-200 focus:outline-none ${editIsEnabled ? 'bg-brand-primary' : 'bg-white/10'}`}
+              >
+                <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${editIsEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
+              </button>
+            </div>
             <div className="space-y-3">
               {[
                 { label: "Name", val: editName, set: setEditName, type: "text" },
@@ -99,8 +113,8 @@ export default function CulinaryCalendarItem({
                 <button
                   onClick={() => setEditNegate(!editNegate)}
                   className={`w-full py-2 rounded-lg border transition-all text-xs font-bold uppercase tracking-wider ${editNegate
-                      ? "bg-brand-secondary/20 border-brand-secondary text-brand-secondary"
-                      : "bg-brand-primary/20 border-brand-primary text-brand-primary"
+                    ? "bg-brand-secondary/20 border-brand-secondary text-brand-secondary"
+                    : "bg-brand-primary/20 border-brand-primary text-brand-primary"
                     }`}
                 >
                   {editNegate ? "Reverse Rotation" : "Normal Rotation"}
@@ -126,14 +140,33 @@ export default function CulinaryCalendarItem({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex flex-col gap-1">
-              <span className="text-brand-primary font-bold text-xl leading-tight pr-16 sm:pr-0">
+            <div className="flex items-center gap-3">
+              <span className={`font-bold text-xl leading-tight transition-all group-hover:translate-x-0.5 
+  ${feedingTime.isEnabled
+                  ? "text-brand-primary"
+                  : "text-brand-muted opacity-80"
+                }`}>
                 {feedingTime.name}
-              </span>
-              <span className="inline-block w-fit px-2 py-0.5 rounded-md bg-brand-primary/10 text-brand-primary text-xs font-mono border border-brand-primary/20">
-                {feedingTime.time.slice(0, 5)}
-              </span>
+              </span>              <button
+                onClick={handleToggle}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-tighter transition-all border
+      ${feedingTime.isEnabled
+                    ? "bg-brand-primary/20 border-brand-primary/40 text-brand-primary"
+                    : "bg-white/5 border-white/10 text-white/20"
+                  }`}
+              >
+                <FaPowerOff size={10} />
+                {feedingTime.isEnabled ? "Active" : "Paused"}
+              </button>
             </div>
+
+            <span className={`inline-block w-fit px-2 py-0.5 rounded-md text-xs font-mono border transition-all ${feedingTime.isEnabled
+              ? "bg-brand-primary/10 text-brand-primary border-brand-primary/20"
+              : "bg-white/5 text-brand-muted border-white/10"
+              }`}>
+              {feedingTime.time.slice(0, 5)}
+            </span>
+
 
             <div className="grid grid-cols-2 sm:grid-cols-2 gap-y-3 gap-x-2">
               <Stat icon="⚙️" label="steps" value={feedingTime.motorInstructions.steps} />
@@ -172,7 +205,7 @@ interface StatProps {
   label: string;
   value: string | number;
 }
-function Stat({ icon, label, value } : StatProps) {
+function Stat({ icon, label, value }: StatProps) {
   return (
     <div className="flex items-center gap-2 text-brand-muted text-sm whitespace-nowrap">
       <span className="opacity-50">{icon}</span>

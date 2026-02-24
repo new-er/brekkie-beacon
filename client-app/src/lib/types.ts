@@ -2,6 +2,7 @@ export type FeedingTime = {
   id: string;
   name: string;
   time: string;
+  isEnabled: boolean;
 
   motorInstructions: MotorInstructions;
   ledInstructions: LEDInstructions;

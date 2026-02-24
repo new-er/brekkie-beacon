@@ -25,6 +25,7 @@ export default function CulinaryCalendarView({
       id: uuidv4(),
       name: newTimeName.trim(),
       time: "12:00",
+      isEnabled: true,
       motorInstructions: {
         steps: 1450,
         waitBetweenSteps: "00:00:00.0050000",

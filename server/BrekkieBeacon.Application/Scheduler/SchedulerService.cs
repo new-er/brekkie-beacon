@@ -56,6 +56,7 @@ public class SchedulerService(TimeZoneInfo timeZoneInfo, ISchedulerFactory sched
     
     private async Task ScheduleJobsAsync(IScheduler scheduler, FeedingTime ft)
     {
+        if(!ft.IsEnabled) return;
         var feedTrigger = TriggerBuilder
             .Create()
             .WithIdentity(MotorJobId(ft.Id))
