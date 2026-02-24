@@ -29,13 +29,22 @@ The software utilizes a modern stack to ensure real-time communication and relia
 ## 🔌 Hardware Setup
 
 ### Bill of Materials
-* **Controller:** Raspberry Pi 4 Model B (Tested with Rev 1.5).
+* **Controller:** Raspberry Pi (Tested with Pi 4 Model B Rev 1.5) 
 * **Motor:** Stepper Motor (e.g. Nema23—*Note: This is an example and may be overpowered; smaller motors can be used*).
 * **Driver:** Stepper Motor Driver (e.g. TB6600—*Note: Match this to your chosen motor*).
-* **Dispenser:** Wall-mounted cereal dispenser (e.g., [this model](https://www.amazon.de/-/en/kangten-Dispenser-Mounted-Kitchen-Cornflakes/dp/B09LM9TDH1)).
+* **Dispenser:** Any standard cereal dispenser will work. I originally designed this for a *standing* model (which is currently hard to find), so the example link below is for a **wall-mounted** version. 
+  * [Example Dispenser Model](https://www.amazon.de/-/en/kangten-Dispenser-Mounted-Kitchen-Cornflakes/dp/B09LM9TDH1) 
+  * *Note: If using the wall-mounted version, some 3D-modeled adaptations will be required for the motor mount.*
 * **Power:** Raspberry Pi Power Supply + Dedicated Stepper Motor Power Supply.
-* **Mechanical:** Shaft coupler, (3D-printed) casing, and custom internal drive screw.
+* **Mechanical:** Shaft coupler, (3D-printed) casing (see [models folder](./models)), and custom internal drive screw.
 * **Optional:** 4x LEDs and corresponding resistors.
+
+### 🖨️ 3D Printing
+The main enclosure houses the electronics and aligns the motor with the dispenser. You can find the STL file in the [**/models folder**](./models).
+
+| Part | File | Purpose |
+| :--- | :--- | :--- |
+| **(Base) Casing** | `casing.stl` | Protective housing with integrated food bowl area and motor-to-dispenser alignment. |
 
 ### Assembly Instructions
 1.  **Mechanical:** Unscrew the manual handle from the cereal feeder. Insert a screw into the paddle mechanism and connect it to the stepper motor using the shaft coupler.
