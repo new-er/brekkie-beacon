@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import type { FeedingTime } from "@/lib/types";
 import FeedingTimeList from "./CulinaryCalendarList";
 import { FaCalendarAlt, FaPlus } from 'react-icons/fa';
+import { v4 as uuidv4 } from 'uuid';
 
 type FeedingTimesViewProps = {
   items: FeedingTime[];
@@ -21,7 +22,7 @@ export default function CulinaryCalendarView({
   const handleAdd = () => {
     if (!newTimeName.trim()) return;
     const newFeedingTime: FeedingTime = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       name: newTimeName.trim(),
       time: "12:00",
       motorInstructions: {
