@@ -112,6 +112,6 @@ Once the containers are running, access the web interface at the IP address of y
 - **Manual Trigger:** Use the dashboard to dispense food manually or test the LED indicators.
 - **View Logs:** Check the backend logs for real-time feedback on motor actions and schedule executions.
 
----
-
-<p align="center"><i>"Kibble in the bin, Docker for the win—let the stepper motor spin."</i></p>
+## Status
+Current Status: 🟢 Stable and feeding one very happy cat.
+Contributions, bug reports and PRs always welcome!
