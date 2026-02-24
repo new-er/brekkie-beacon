@@ -69,49 +69,7 @@ public class SchedulerService(TimeZoneInfo timeZoneInfo, ISchedulerFactory sched
             .UsingJobData("MotorInstructions", JsonSerializer.Serialize(ft.MotorInstructions))
             .Build();
         
-        var dimmedLedTrigger = TriggerBuilder
-            .Create()
-            .WithIdentity(DimmedLedJobId(ft.Id))
-            .WithSchedule(CronScheduleBuilder
-                .CronSchedule(BuildCronExpression(ft.Time, -TimeSpan.FromHours(1)))
-                .InTimeZone(timeZoneInfo))
-            .Build();
-        var dimmedLedJob = JobBuilder.Create<StartDimmedLedCountdownJob>()
-            .WithIdentity(DimmedLedJobId(ft.Id))
-            .UsingJobData("NextFeedingTime", ft.Time.ToString())
-            .UsingJobData("LedInstructions", JsonSerializer.Serialize(ft.LEDInstructions))
-            .Build();
-
-        var flashingLedTrigger = TriggerBuilder
-            .Create()
-            .WithIdentity(FlashingLedJobId(ft.Id))
-            .WithSchedule(CronScheduleBuilder
-                .CronSchedule(BuildCronExpression(ft.Time, -TimeSpan.FromSeconds(15)))
-                .InTimeZone(timeZoneInfo))
-            .Build();
-        var flashingLedJob = JobBuilder
-            .Create<StartFlashingLedCountdownJob>()
-            .WithIdentity(FlashingLedJobId(ft.Id))
-            .UsingJobData("LedInstructions", JsonSerializer.Serialize(ft.LEDInstructions))
-            .Build();
-        
-        var stopLedTrigger = TriggerBuilder
-            .Create()
-            .WithIdentity(StopLedJobId(ft.Id))
-            .WithSchedule(CronScheduleBuilder
-                .CronSchedule(BuildCronExpression(ft.Time, TimeSpan.FromSeconds(15)))
-                .InTimeZone(timeZoneInfo))
-            .Build();
-        var stopLedJob = JobBuilder
-            .Create<StopFlashingJob>()
-            .WithIdentity(StopLedJobId(ft.Id))
-            .UsingJobData("LedInstructions", JsonSerializer.Serialize(ft.LEDInstructions))
-            .Build();
-        
         await scheduler.ScheduleJob(feedJob, feedTrigger);
-        await scheduler.ScheduleJob(dimmedLedJob, dimmedLedTrigger);
-        await scheduler.ScheduleJob(flashingLedJob, flashingLedTrigger);
-        await scheduler.ScheduleJob(stopLedJob, stopLedTrigger);
         
         var nextFireUtc = feedTrigger.GetNextFireTimeUtc();
         if (nextFireUtc.HasValue)

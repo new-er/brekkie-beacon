@@ -67,6 +67,8 @@ builder.Services.AddSingleton<SchedulerService>();
 builder.Services.AddSingleton<FeederService>();
 builder.Services.AddSingleton<LEDService>();
 
+builder.Services.AddHostedService(sp => sp.GetRequiredService<LEDService>());
+
 var app = builder.Build();
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
@@ -148,21 +150,21 @@ app.MapGet("/motor_status", (FeederService feederService) => Results.Ok(new Stat
 
 app.MapPost("/flash_lights", (LEDService ledService) =>
 {
-    if (ledService.IsRunning) return Results.Ok(new { Message = "already flashing" });
-    _ = ledService.StartTestFlash();
+    if (ledService.CurrentState == LEDService.LedState.ManualFlash) return Results.Ok(new { Message = "already flashing" });
+    ledService.StartManualFlash();
     Task.Run(async () =>
     {
         await Task.Delay(TimeSpan.FromSeconds(10));
-        ledService.StopFlash();
+        ledService.StopManualFlash();
     });
     return Results.Ok(new { Message = "started light flash" });
 }).WithName("FlashLEDsNow");
 app.MapPost("/stop_lights", (LEDService ledService) =>
 {
-    ledService.StopFlash();
+    ledService.StopManualFlash();
     return Results.Ok(new { Message = "stopped led service" });
 }).WithName("StopLEDs");
-app.MapGet("/lights_status", (LEDService ledService) => Results.Ok(new State(ledService.IsRunning)))
+app.MapGet("/lights_status", (LEDService ledService) => Results.Ok(new State(ledService.CurrentState == LEDService.LedState.ManualFlash)))
     .WithName("LEDStatus");
 
 app.MapGet("/logs", async ([FromServices] LogsDbContext db) =>
