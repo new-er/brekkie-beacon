@@ -45,6 +45,7 @@ The main enclosure houses the electronics and aligns the motor with the dispense
 | Part | File | Purpose |
 | :--- | :--- | :--- |
 | **(Base) Casing** | `casing.stl` | Protective housing with integrated food bowl area and motor-to-dispenser alignment. |
+| **Source File** | `casing.skp` | SketchUp source for custom modifications or adjustments. |
 
 ### Assembly Instructions
 1.  **Mechanical:** Unscrew the manual handle from the cereal feeder. Insert a screw into the paddle mechanism and connect it to the stepper motor using the shaft coupler.
@@ -94,8 +95,8 @@ DATABASE_PATH=/data
 
 # --- Networking ---
 # Update ALLOWED_ORIGINS if accessing from a specific domain
-ALLOWED_ORIGINS=http://localhost:3000
-# Update API_BASE_URL to your Pi's IP (e.g., [http://192.168.1.50:5098](http://192.168.1.50:5098)) 
+ALLOWED_ORIGINS=http://localhost:80
+# Update API_BASE_URL to your Pi's IP
 # so the browser can reach the backend.
 API_BASE_URL=http://localhost:5098
 ```
