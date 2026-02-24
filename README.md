@@ -34,7 +34,7 @@ The software utilizes a modern stack to ensure real-time communication and relia
 * **Driver:** Stepper Motor Driver (e.g. TB6600—*Note: Match this to your chosen motor*).
 * **Dispenser:** Any standard cereal dispenser will work. I originally designed this for a *standing* model (which is currently hard to find), so the example link below is for a **wall-mounted** version. 
   * [Example Dispenser Model](https://www.amazon.de/-/en/kangten-Dispenser-Mounted-Kitchen-Cornflakes/dp/B09LM9TDH1) 
-  * *Note: If using the wall-mounted version, some 3D-modeled adaptations will be required for the motor mount.*
+  * *Note: If using the wall-mounted version, some 3D-modeled adaptations will be required.*
 * **Power:** Raspberry Pi Power Supply + Dedicated Stepper Motor Power Supply.
 * **Mechanical:** Shaft coupler, (3D-printed) casing (see [models folder](./models)), and custom internal drive screw.
 * **Optional:** 4x LEDs and corresponding resistors.
@@ -72,24 +72,45 @@ The main enclosure houses the electronics and aligns the motor with the dispense
 
 ## 🚀 Software Installation
 
-### 1. Prerequisite
-Ensure Docker and Docker Compose are installed on your Raspberry Pi.
+### 1. Prerequisites
+- Docker & Docker Compose: Installed on your Raspberry Pi.
+- GPIO Access: The container uses /dev/gpiomem to access the Pi's pins without requiring full root/privileged mode.
 
-### 2. Deployment
-Clone the repository and run the production profile:
-
+### 2. Clone the Repository
+Clone the repository to your local machine:
 ```bash
-git clone http://github.com/new-er/brekkie-beacon.git
+git clone [http://github.com/new-er/brekkie-beacon.git](http://github.com/new-er/brekkie-beacon.git)
+cd brekkie-beacon
+```
+
+Copy and paste the following into your .env file:
+
+```
+# --- System Settings ---
+# Find your timezone here: [https://en.wikipedia.org/wiki/List_of_tz_database_time_zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+TIMEZONE=Europe/Amsterdam
+PIN_MODE=prod
+DATABASE_PATH=/data
+
+# --- Networking ---
+# Update ALLOWED_ORIGINS if accessing from a specific domain
+ALLOWED_ORIGINS=http://localhost:3000
+# Update API_BASE_URL to your Pi's IP (e.g., [http://192.168.1.50:5098](http://192.168.1.50:5098)) 
+# so the browser can reach the backend.
+API_BASE_URL=http://localhost:5098
+```
+
+### 4. Deployment
+Run the production profile to start the services:
+```bash
 docker compose --profile prod up -d
 ```
-## 3. Usage
 
-
-Once the containers are running, access the web interface at the IP address of your Raspberry Pi.
-Within the dashboard, you can:
-- Feeding Times: The application defaults to four daily auto-feeding times, which can be modified directly in the UI.
-- Manual Trigger: Use the dashboard to dispense food manually or test the LED indicators.
-- View Logs: Check the backend logs for real-time feedback on motor actions and schedule executions.
+### 5. Usage
+Once the containers are running, access the web interface at the IP address of your Raspberry Pi. Within the dashboard, you can:
+- **Feeding Times:** The application defaults to four daily auto-feeding times, which can be modified directly in the UI.
+- **Manual Trigger:** Use the dashboard to dispense food manually or test the LED indicators.
+- **View Logs:** Check the backend logs for real-time feedback on motor actions and schedule executions.
 
 ---
 

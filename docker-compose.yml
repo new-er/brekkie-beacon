@@ -7,14 +7,14 @@ services:
     restart: always
     pull_policy: always
     environment:
-      - PIN_MODE=prod
-      - ALLOWED_ORIGINS=http://localhost:80
-      - DATABASE_PATH=/data
-      - TIMEZONE=Europe/Amsterdam
+      - PIN_MODE=${PIN_MODE}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - DATABASE_PATH=${DATABASE_PATH}
+      - TIMEZONE=${TIMEZONE}
     devices:
       - /dev/gpiomem:/dev/gpiomem
     volumes:
-      - ./beacondata:/data
+      - ./beacondata:${DATABASE_PATH}
     ports:
       - "5098:8080"
     healthcheck:
@@ -33,10 +33,10 @@ services:
     environment:
       - PIN_MODE=mock
       - ALLOWED_ORIGINS=http://localhost:3000
-      - DATABASE_PATH=/data
-      - TIMEZONE=Europe/Amsterdam
+      - DATABASE_PATH=${DATABASE_PATH}
+      - TIMEZONE=${TIMEZONE}
     volumes:
-      - ./beacondata-mock:/data
+      - ./beacondata-mock:${DATABASE_PATH}
     ports:
       - "5098:8080"
     healthcheck:
@@ -46,13 +46,11 @@ services:
       retries: 3
       start_period: 10s
 
-
   client-app:
     image: ghcr.io/new-er/brekkie-beacon/brekkie-beacon-client:latest
     pull_policy: always
     restart: always
     environment:
-      - API_BASE_URL=http://localhost:5098
+      - API_BASE_URL=${API_BASE_URL}
     ports:
-      - "3000:3000"
-
+      - "80:3000"
