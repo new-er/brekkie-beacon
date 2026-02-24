@@ -14,6 +14,7 @@ The software utilizes a modern stack to ensure real-time communication and relia
 ## 🌟 Key Features
 * **Flexible Scheduling:** Fully configurable feeding schedules managed via the web dashboard. 
 * **Real-Time Control:** Trigger a manual dispense or flash the indicator LEDs instantly from any browser.
+* **Pre-Feed Alert:** A 60-minute countdown where 4 LEDs gradually brighten and sequence, culminating in a pre-feed blink just before meal time.
 * **Web Dashboard:** A responsive Next.js frontend communicating with an ASP.NET backend.
 * **Dockerized Deployment:** Simple one-command setup using Docker Compose.
 
