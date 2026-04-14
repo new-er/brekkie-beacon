@@ -8,7 +8,9 @@
 The software utilizes a modern stack to ensure real-time communication and reliable scheduling, all manageable from any device on your local network.
 
 <p align="center">
-  <img src="media/website-screenshot.png" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+  <img src="media/website-screenshot.png" width="800" style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);" alt="Brekkie Beacon Web Dashboard">
+  <br>
+  <em>The Brekkie Beacon web dashboard for scheduling and manual control.</em>
 </p>
 
 ## 🌟 Key Features
@@ -28,6 +30,12 @@ The software utilizes a modern stack to ensure real-time communication and relia
 * **Infrastructure:** Multi-container Docker environment.
 
 ## 🔌 Hardware Setup
+
+<p align="center">
+  <img src="media/feeder.jpg" width="500" alt="Brekkie Beacon Hardware Assembly" style="border-radius: 8px;">
+  <br>
+  <em>The completed Brekkie Beacon assembly.</em>
+</p>
 
 ### Bill of Materials
 * **Controller:** Raspberry Pi (Tested with Pi 4 Model B Rev 1.5) 
@@ -113,6 +121,12 @@ Once the containers are running, access the web interface at the IP address of y
 - **Feeding Times:** The application defaults to four daily auto-feeding times, which can be modified directly in the UI.
 - **Manual Trigger:** Use the dashboard to dispense food manually or test the LED indicators.
 - **View Logs:** Check the backend logs for real-time feedback on motor actions and schedule executions.
+
+## 🥣 Origin of the Name
+The name is inspired by the [Brekkies](https://brekkies-affinity.com/row/en/) pet food brand. 
+
+* **Brekkie:** Short for breakfast (and the cat's favorite brand).
+* **Beacon:** Because it’s a shining light of hope in a hungry pet’s life.
 
 ## Status
 Current Status: 🟢 Stable and feeding one very happy cat.
