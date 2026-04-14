@@ -130,4 +130,11 @@ The name is inspired by the [Brekkies](https://brekkies-affinity.com/row/en/) pe
 
 ## Status
 Current Status: 🟢 Stable and feeding one very happy cat.
+
+<p align="left">
+  <img src="media/cat.jpg" width="300" alt="Happy cat sleeping after being fed" style="border-radius: 8px;">
+  <br>
+  <em>Nap mode activated after a successful meal.</em>
+</p>
+
 Contributions, bug reports and PRs always welcome!
